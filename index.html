@@ -418,19 +418,109 @@ const VP = {
 };
 
 const TAGS = [
-  {id:'emphasise',label:'[emphasise]', desc:'CAPSs key words for stress. Freq = % of content words.',  on:true,  freq:40},
-  {id:'pause',    label:'[pause]',     desc:'Adds ellipsis after punctuation for dramatic pacing.',     on:true,  freq:35},
-  {id:'laugh',    label:'[laughs]',    desc:'Injects a laugh between sentences.',                        on:false, freq:20},
-  {id:'sigh',     label:'[sighs]',     desc:'Inserts a sigh at sentence openings.',                     on:false, freq:20},
-  {id:'breath',   label:'[breathes]',  desc:'Adds audible breath between clauses.',                     on:false, freq:25},
-  {id:'hmm',      label:'[hmm]',       desc:'Thoughtful hesitation at clause boundaries.',              on:false, freq:15},
+  {id:'emphasise', label:'[emphasise]',  desc:'Adds [emphasise] + CAPS to key verbs & adjectives. Freq = density.',  on:true,  freq:40, hasFreq:true},
+  {id:'pause',     label:'[pause] / …',  desc:'Adds … after sentence endings for dramatic pacing.',                   on:true,  freq:35, hasFreq:true},
+  {id:'question',  label:'[question]',   desc:'Appends [question] after every sentence ending with ?',                on:true,  freq:100,hasFreq:false},
+  {id:'breath',    label:'[breathes]',   desc:'Injects a breath between sentences or after commas.',                  on:true,  freq:25, hasFreq:true},
+  {id:'hmm',       label:'[hmm]',        desc:'Thoughtful hesitation injected between sentences.',                    on:true,  freq:15, hasFreq:true},
+  {id:'sigh',      label:'[sighs]',      desc:'Short sigh injected at sentence boundaries.',                          on:false, freq:20, hasFreq:true},
+  {id:'longsigh',  label:'[long sigh]',  desc:'Long sigh — injected once at natural pause points.',                   on:false, freq:10, hasFreq:true},
+  {id:'laugh',     label:'[laughs]',     desc:'Injects a laugh between sentences.',                                   on:false, freq:15, hasFreq:true},
 ];
 
 const STOP = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','cannot','it','its','this','that','these','those','i','you','he','she','we','they','me','him','her','us','them','my','your','his','our','their','what','which','who','when','where','how','all','each','every','both','few','more','most','other','some','such','no','not','only','same','so','than','too','very','just','as','if','then','there','here','out','up','about','into','over','after','before','also','back','through','during','because','while','although']);
 
+// Explicit verb list — words we ALWAYS treat as emphasis candidates
+const VERBS = new Set(['want','need','crave','desire','pull','push','climb','ride','touch','feel','hold','grab','take','tease','strip','whisper','devour','taste','lick','kiss','bite','caress','explore','press','grind','build','lose','beg','shiver','tingle','surrender','savour','savor','linger','drag','trail','wrap','tear','plunge','sink','burn','melt','tremble','quiver','stroke','trace','brush','slide','slip','glide','consume','swallow','feast','hunger','starve','ache','scream','gasp','pant','throb','pulse','ache','want','crave','devour','possess','own','command','demand','breathe','moan','purr']);
+
+// Explicit adjective list
+const ADJS = new Set(['slow','fast','deep','soft','hard','warm','hot','wild','sweet','dark','wet','rough','smooth','tight','long','thick','heavy','naughty','filthy','dirty','sinful','wicked','delicious','sensual','intimate','passionate','intense','desperate','breathless','hungry','burning','trembling','thrilled','excited','eager','willing','devoted','obsessed','electric','irresistible','tempting','forbidden','naked','bare','raw','powerful','overwhelming','exquisite','divine','intoxicating','mesmerising','captivating','seductive','provocative','teasing','devastating','shameless','bold','daring','reckless','feral','primal','urgent','frantic','gorgeous','beautiful','glorious','fierce','relentless','ruthless','savage','deliberate','slow','delirious','euphoric','blissful']);
+
 // ════════════════════════════════════════════════════════════════
-// STATE
+// TEXT PREPROCESSING
 // ════════════════════════════════════════════════════════════════
+
+function splitSentences(text) {
+  // Split on sentence-ending punctuation
+  const parts = text.split(/(?<=[.!?…])\s+(?=[A-Z"'])/);
+  if (parts.length > 1) return parts.map(s=>s.trim()).filter(Boolean);
+  // Fallback: split on newlines
+  return text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+}
+
+function groupParagraphs(sentences) {
+  const paras = [], max = 3;
+  for (let i = 0; i < sentences.length; i += max) {
+    paras.push(sentences.slice(i, i + max).join(' '));
+  }
+  return paras;
+}
+
+// [emphasise] + CAPS — only on verbs and adjectives
+function applyEmphasis(text, freqPct) {
+  const tokens = text.split(/(\s+)/);
+  const candidates = [];
+  tokens.forEach((tok, i) => {
+    const clean = tok.replace(/[^a-zA-Z]/g, '').toLowerCase();
+    if (!clean || clean.length < 3 || STOP.has(clean)) return;
+    const isVA =
+      VERBS.has(clean) || ADJS.has(clean) ||
+      /(?:ing|ise|ize|ened|ened)$/.test(clean) ||
+      /(?:ful|less|ive|ous|ible|able|ic|ish|ent|ant|ory)$/.test(clean);
+    if (isVA) candidates.push(i);
+  });
+  if (!candidates.length) return text;
+  const count = Math.max(1, Math.round(candidates.length * (freqPct / 100)));
+  const picked = new Set([...candidates].sort(() => Math.random() - 0.5).slice(0, count));
+  return tokens.map((tok, i) => picked.has(i) ? '[emphasise] ' + tok.toUpperCase() : tok).join('');
+}
+
+// Inject a tag randomly between sentences
+function injectBetween(sentences, tag, freqPct) {
+  const f = freqPct / 100;
+  return sentences.map((s, i) => i === 0 ? s : (Math.random() < f ? tag + ' ' + s : s));
+}
+
+function processText(rawText) {
+  const pfx = getPrefix();
+
+  let sentences = splitSentences(rawText);
+  if (!sentences.length) return pfx ? pfx + ' ' + rawText : rawText;
+
+  // Inject sound tags between sentences
+  if (tagState.breath.on    && tagState.breath.freq > 0)    sentences = injectBetween(sentences, '[breathes]',  tagState.breath.freq);
+  if (tagState.hmm.on       && tagState.hmm.freq > 0)       sentences = injectBetween(sentences, '[hmm]',       tagState.hmm.freq);
+  if (tagState.sigh.on      && tagState.sigh.freq > 0)      sentences = injectBetween(sentences, '[sighs]',     tagState.sigh.freq);
+  if (tagState.longsigh.on  && tagState.longsigh.freq > 0)  sentences = injectBetween(sentences, '[long sigh]', tagState.longsigh.freq);
+  if (tagState.laugh.on     && tagState.laugh.freq > 0)     sentences = injectBetween(sentences, '[laughs]',    tagState.laugh.freq);
+
+  // Group into 2-3 sentence paragraphs
+  const paragraphs = groupParagraphs(sentences);
+
+  return paragraphs.map(para => {
+    let t = para;
+
+    // [pause]: ellipsis after sentence endings
+    if (tagState.pause.on && tagState.pause.freq > 0) {
+      const f = tagState.pause.freq / 100;
+      t = t.replace(/([.!])(\s+|$)/g, (m, p, sp) => Math.random() < f ? p + '… ' : m);
+    }
+
+    // [emphasise] + CAPS on verbs/adjectives
+    if (tagState.emphasise.on && tagState.emphasise.freq > 0) {
+      t = applyEmphasis(t, tagState.emphasise.freq);
+    }
+
+    // [question] after questions
+    if (tagState.question && tagState.question.on) {
+      t = t.replace(/\?(\s|$)/g, '? [question] ');
+    }
+
+    return pfx ? pfx + ' ' + t.trim() : t.trim();
+  }).join('\n\n');
+}
+
+
 let preset   = 'standard';
 let muted    = false;
 let audio    = null;
@@ -529,17 +619,21 @@ function buildTags(containerId, isLive) {
     info.appendChild(nm); info.appendChild(ds);
 
     const fw=document.createElement('div'); fw.className='tag-fw';
-    const sr=document.createElement('input');
-    sr.type='range'; sr.min=0; sr.max=100; sr.value=tagState[t.id].freq;
-    sr.style.setProperty('--pct',tagState[t.id].freq+'%');
-    const sv=document.createElement('span'); sv.className='tag-fv'; sv.textContent=tagState[t.id].freq+'%';
-    sr.addEventListener('input',()=>{
-      const v=+sr.value; tagState[t.id].freq=v;
-      sv.textContent=v+'%'; sr.style.setProperty('--pct',v+'%');
-      syncTagOther(isLive, t.id, 'range', v);
-      save();
-    });
-    fw.appendChild(sr); fw.appendChild(sv);
+    if (t.hasFreq !== false) {
+      const sr=document.createElement('input');
+      sr.type='range'; sr.min=0; sr.max=100; sr.value=tagState[t.id].freq;
+      sr.style.setProperty('--pct',tagState[t.id].freq+'%');
+      const sv=document.createElement('span'); sv.className='tag-fv'; sv.textContent=tagState[t.id].freq+'%';
+      sr.addEventListener('input',()=>{
+        const v=+sr.value; tagState[t.id].freq=v;
+        sv.textContent=v+'%'; sr.style.setProperty('--pct',v+'%');
+        syncTagOther(isLive, t.id, 'range', v);
+        save();
+      });
+      fw.appendChild(sr); fw.appendChild(sv);
+    } else {
+      const note=document.createElement('span'); note.className='tag-fv'; note.textContent='always'; fw.appendChild(note);
+    }
     row.appendChild(cb); row.appendChild(info); row.appendChild(fw);
     c.appendChild(row);
   });
@@ -550,44 +644,6 @@ function syncTagOther(isLive, tid, type, val) {
   if(type==='cb') { const c=other.querySelector('.tag-toggle'); if(c) c.checked=val; }
   else { const r=other.querySelector('input[type=range]'); const v=other.querySelector('.tag-fv');
     if(r){r.value=val;r.style.setProperty('--pct',val+'%');} if(v) v.textContent=val+'%'; }
-}
-
-// ════════════════════════════════════════════════════════════════
-// TEXT PREPROCESSING
-// ════════════════════════════════════════════════════════════════
-function processText(text) {
-  let r=text;
-  if(tagState.pause.on && tagState.pause.freq>0) {
-    const f=tagState.pause.freq/100;
-    r=r.replace(/([.!?])\s+/g,(m,p)=>Math.random()<f?p+'… ':m);
-  }
-  if(tagState.emphasise.on && tagState.emphasise.freq>0) r=emphasise(r, tagState.emphasise.freq);
-  const ST=[
-    {id:'laugh', tok:'[laughs]',   pos:'after'},
-    {id:'sigh',  tok:'[sighs]',    pos:'before'},
-    {id:'breath',tok:'[breathes]', pos:'comma'},
-    {id:'hmm',   tok:'[hmm]',      pos:'before'},
-  ];
-  for(const {id,tok,pos} of ST) {
-    if(!tagState[id].on || tagState[id].freq===0) continue;
-    const f=tagState[id].freq/100;
-    if(pos==='after')  r=r.replace(/([.!?])\s+([A-Z])/g,(m,p,n)=>Math.random()<f?`${p} ${tok} ${n}`:m);
-    if(pos==='before') r=r.replace(/([.!?])\s+([A-Z])/g,(m,p,n)=>Math.random()<f?`${p} ${tok}, ${n}`:m);
-    if(pos==='comma')  r=r.replace(/,\s+/g,m=>Math.random()<f*0.5?`, ${tok} `:m);
-  }
-  return r;
-}
-function emphasise(text, pct) {
-  const toks=text.split(/(\s+)/);
-  const cands=[];
-  toks.forEach((tok,i)=>{
-    const c=tok.replace(/[^a-zA-Z]/g,'').toLowerCase();
-    if(c.length>3 && !STOP.has(c) && /^[a-zA-Z]/.test(tok)) cands.push(i);
-  });
-  if(!cands.length) return text;
-  const n=Math.max(1,Math.round(cands.length*(pct/100)));
-  const pick=new Set([...cands].sort(()=>Math.random()-.5).slice(0,n));
-  return toks.map((tok,i)=>pick.has(i)?tok.toUpperCase():tok).join('');
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -865,10 +921,8 @@ async function speak(rawText) {
   const voiceId=sel.value==='__custom__'?document.getElementById('customId').value.trim():sel.value;
   if(!elKey||!voiceId) return;
 
-  const processed=processText(rawText);
-  const pfx=getPrefix();
-  const finalText=pfx?pfx+' '+processed:processed;
-  const vs=getVS(); const speed=vs.speed;
+  const processed = processText(rawText);  // prefix is applied per-paragraph inside processText
+  const vs = getVS(); const speed = vs.speed;
 
   setStatus('Synthesising…');
   try {
@@ -876,7 +930,7 @@ async function speak(rawText) {
       method:'POST',
       headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
       body:JSON.stringify({
-        text:finalText,
+        text: processed,
         model_id:getElModel(),
         voice_settings:{stability:vs.stability,similarity_boost:vs.similarity_boost,style:vs.style,use_speaker_boost:true},
         speed

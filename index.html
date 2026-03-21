@@ -264,9 +264,17 @@ input[type=range]::-moz-range-thumb {
     <div class="field">
       <label class="lbl">Grok Model</label>
       <select id="modelSelect">
-        <option value="grok-3">Grok 3</option>
-        <option value="grok-3-mini">Grok 3 Mini</option>
-        <option value="grok-2-1212">Grok 2</option>
+        <optgroup label="Grok 4 (Latest)">
+          <option value="grok-4">Grok 4 — Most capable</option>
+          <option value="grok-4-1">Grok 4.1 — Fast + agentic</option>
+        </optgroup>
+        <optgroup label="Grok 3">
+          <option value="grok-3">Grok 3 — Balanced</option>
+          <option value="grok-3-mini">Grok 3 Mini — Fastest</option>
+        </optgroup>
+        <optgroup label="Grok 2">
+          <option value="grok-2-1212">Grok 2 — Legacy</option>
+        </optgroup>
       </select>
     </div>
   </div>
@@ -275,13 +283,13 @@ input[type=range]::-moz-range-thumb {
   <div class="field">
     <label class="lbl">ElevenLabs Voice Model</label>
     <select id="elevenModel">
-      <option value="eleven_multilingual_v2">Multilingual v2 — Best quality &amp; expression</option>
-      <option value="eleven_turbo_v2_5">Turbo v2.5 — Fast, very expressive</option>
+      <option value="eleven_v3">v3 — Most expressive, best audio tags ★</option>
+      <option value="eleven_multilingual_v2">Multilingual v2 — Best for custom/cloned voices</option>
+      <option value="eleven_flash_v2_5">Flash v2.5 — Fastest, low latency</option>
+      <option value="eleven_turbo_v2_5">Turbo v2.5 — Fast &amp; expressive</option>
       <option value="eleven_turbo_v2">Turbo v2 — Fast</option>
-      <option value="eleven_flash_v2_5">Flash v2.5 — Ultra low latency</option>
-      <option value="eleven_monolingual_v1">Monolingual v1 — English classic</option>
     </select>
-    <div style="font-size:10px;color:#2a5a48">Multilingual v2 or Turbo v2.5 recommended for custom voices</div>
+    <div style="font-size:10px;color:#2a5a48">v3 has the best audio tag support but higher latency. If your cloned voice sounds off on v3, try Multilingual v2.</div>
   </div>
 
   <!-- Custom Voice ID -->
@@ -409,11 +417,11 @@ input[type=range]::-moz-range-thumb {
     <div class="field">
       <label class="lbl">ElevenLabs Model</label>
       <select id="liveElevenModel">
+        <option value="eleven_v3">v3 — Most expressive ★</option>
         <option value="eleven_multilingual_v2">Multilingual v2</option>
+        <option value="eleven_flash_v2_5">Flash v2.5 — Fastest</option>
         <option value="eleven_turbo_v2_5">Turbo v2.5</option>
         <option value="eleven_turbo_v2">Turbo v2</option>
-        <option value="eleven_flash_v2_5">Flash v2.5</option>
-        <option value="eleven_monolingual_v1">Monolingual v1</option>
       </select>
     </div>
 
@@ -531,7 +539,10 @@ TAG_DEFS.forEach(t => { tagState[t.id] = { on: t.defaultOn, freq: t.defaultFreq 
 buildWaveform();
 buildTagRows('tagRows', false);
 buildTagRows('liveTagRows', true);
+loadSettings();       // restore saved values before building sliders
 refreshAllSliders();
+setupAutosave();
+checkCanStart();      // evaluate button state with restored values
 
 // ══════════════════════════════════════════════════════════════════════════
 // WAVEFORM
@@ -620,6 +631,7 @@ function buildTagRows(containerId, isLive) {
       if (otherCb) otherCb.checked = cb.checked;
       // Update row opacity
       [row, document.getElementById(otherId)].forEach(r => { if(r) r.className = 'tag-row ' + (cb.checked ? 'tag-on' : 'tag-off'); });
+      saveSettings();
     };
 
     const info = document.createElement('div'); info.className = 'tag-info';
@@ -645,6 +657,7 @@ function buildTagRows(containerId, isLive) {
       const otherVal = document.querySelector(`#${otherId} .tag-freq-val`);
       if (otherSlider) { otherSlider.value = v; otherSlider.style.setProperty('--pct', v + '%'); }
       if (otherVal) otherVal.textContent = v + '%';
+      saveSettings();
     };
     fw.appendChild(slider); fw.appendChild(valSpan);
 
@@ -739,8 +752,101 @@ function applyEmphasis(text, freqPct) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// KEY VISIBILITY
+// LOCALSTORAGE PERSISTENCE
 // ══════════════════════════════════════════════════════════════════════════
+const LS = 'gvc_'; // namespace prefix
+
+function saveSettings() {
+  try {
+    localStorage.setItem(LS+'grokKey',       document.getElementById('grokKey').value);
+    localStorage.setItem(LS+'elevenKey',     document.getElementById('elevenKey').value);
+    localStorage.setItem(LS+'grokModel',     document.getElementById('modelSelect').value);
+    localStorage.setItem(LS+'elevenModel',   document.getElementById('elevenModel').value);
+    localStorage.setItem(LS+'voiceId',       document.getElementById('voiceSelect').value);
+    localStorage.setItem(LS+'customVoiceId', document.getElementById('customVoiceId').value);
+    localStorage.setItem(LS+'customVoiceName', document.getElementById('customVoiceName').value);
+    localStorage.setItem(LS+'systemPrompt',  document.getElementById('systemPrompt').value);
+    localStorage.setItem(LS+'prefixTags',    document.getElementById('prefixTags').value);
+    localStorage.setItem(LS+'preset',        currentPreset);
+    localStorage.setItem(LS+'stability',     document.getElementById('stability').value);
+    localStorage.setItem(LS+'similarity',    document.getElementById('similarity').value);
+    localStorage.setItem(LS+'style',         document.getElementById('style').value);
+    localStorage.setItem(LS+'speed',         document.getElementById('speed').value);
+    localStorage.setItem(LS+'tagState',      JSON.stringify(tagState));
+  } catch(e) { /* private/incognito mode */ }
+}
+
+function loadSettings() {
+  try {
+    const get = k => localStorage.getItem(LS+k);
+
+    const grokKey = get('grokKey');
+    const elevenKey = get('elevenKey');
+    if (grokKey)   document.getElementById('grokKey').value   = grokKey;
+    if (elevenKey) document.getElementById('elevenKey').value = elevenKey;
+    if (elevenKey) document.getElementById('loadVoicesBtn').disabled = elevenKey.trim().length < 10 ? true : false;
+
+    const grokModel = get('grokModel');
+    const elevenModel = get('elevenModel');
+    if (grokModel)   document.getElementById('modelSelect').value  = grokModel;
+    if (elevenModel) document.getElementById('elevenModel').value  = elevenModel;
+
+    const customVoiceId = get('customVoiceId');
+    const customVoiceName = get('customVoiceName');
+    if (customVoiceId)   document.getElementById('customVoiceId').value   = customVoiceId;
+    if (customVoiceName) document.getElementById('customVoiceName').value = customVoiceName;
+
+    const systemPrompt = get('systemPrompt');
+    const prefixTags   = get('prefixTags');
+    if (systemPrompt !== null) document.getElementById('systemPrompt').value = systemPrompt;
+    if (prefixTags   !== null) document.getElementById('prefixTags').value   = prefixTags;
+
+    const preset = get('preset');
+    if (preset && PRESETS[preset]) selectPreset(preset);
+
+    const stability  = get('stability');
+    const similarity = get('similarity');
+    const style      = get('style');
+    const speed      = get('speed');
+    if (stability)  { document.getElementById('stability').value  = stability;  syncSlider('stability'); }
+    if (similarity) { document.getElementById('similarity').value = similarity; syncSlider('similarity'); }
+    if (style)      { document.getElementById('style').value      = style;      syncSlider('style'); }
+    if (speed)      { document.getElementById('speed').value      = speed;      syncSlider('speed'); }
+
+    const savedTags = get('tagState');
+    if (savedTags) {
+      const parsed = JSON.parse(savedTags);
+      Object.keys(parsed).forEach(id => { if (tagState[id]) tagState[id] = parsed[id]; });
+    }
+
+    // Restore saved voice ID into select — if it matches an existing option great,
+    // otherwise we leave the default (voices will reload when user hits Load My Voices)
+    const voiceId = get('voiceId');
+    if (voiceId && voiceId !== '__custom__') {
+      // Try to set it — if the option doesn't exist yet (before Load My Voices), store for later
+      document.getElementById('voiceSelect').value = voiceId;
+      // If it didn't stick (option not in list), leave as-is
+    } else if (voiceId === '__custom__') {
+      document.getElementById('voiceSelect').value = '__custom__';
+      onVoiceSelectChange();
+    }
+  } catch(e) { /* corrupted storage */ }
+}
+
+// Auto-save on any relevant change
+function setupAutosave() {
+  ['grokKey','elevenKey','customVoiceId','customVoiceName','systemPrompt','prefixTags'].forEach(id => {
+    document.getElementById(id).addEventListener('input', saveSettings);
+  });
+  ['modelSelect','elevenModel','voiceSelect'].forEach(id => {
+    document.getElementById(id).addEventListener('change', saveSettings);
+  });
+  ['stability','similarity','style','speed'].forEach(id => {
+    document.getElementById(id).addEventListener('input', saveSettings);
+  });
+}
+
+
 function toggleKey(id, btn) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
@@ -809,6 +915,7 @@ function selectPreset(key) {
   if (key !== 'custom' || !document.getElementById('systemPrompt').value) {
     document.getElementById('systemPrompt').value = PRESETS[key].prompt;
   }
+  saveSettings();
 }
 
 function switchP(key) {
@@ -836,7 +943,12 @@ function checkCanStart() {
   const voiceOk  = (voiceVal && voiceVal !== '__custom__') || (voiceVal === '__custom__' && customId.length > 5);
   const ok = !!(grok && eleven && voiceOk);
   const btn = document.getElementById('startBtn');
-  btn.disabled = !ok;
+  // Force-remove or set disabled attribute directly — style alone isn't enough
+  if (ok) {
+    btn.removeAttribute('disabled');
+  } else {
+    btn.setAttribute('disabled', '');
+  }
   btn.style.opacity = ok ? '1' : '0.4';
   btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
 }
@@ -895,7 +1007,8 @@ function goToSetup() {
     document.getElementById(k).value = document.getElementById('l'+cap).value;
     syncSlider(k);
   });
-  checkCanStart(); // ← fixes the "start btn disabled" issue
+  checkCanStart();
+  saveSettings();
 }
 
 // ══════════════════════════════════════════════════════════════════════════

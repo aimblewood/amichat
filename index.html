@@ -723,46 +723,53 @@ function showErr(msg) {
 }
 
 function go() {
-  const xaiKey = document.getElementById('xaiKey').value.trim();
-  const elKey  = document.getElementById('elKey').value.trim();
-  if(!xaiKey) { showErr('Enter your xAI API key'); return; }
-  if(!elKey)  { showErr('Enter your ElevenLabs API key'); return; }
+  try {
+    const xaiKey = document.getElementById('xaiKey').value.trim();
+    const elKey  = document.getElementById('elKey').value.trim();
 
-  // Get voice name for display
-  const sel=document.getElementById('voiceSel');
-  const voiceVal=sel.value;
-  let voiceName;
-  if(voiceVal==='__custom__') {
-    voiceName=document.getElementById('customName').value.trim()||'Custom Voice';
-  } else {
-    // Use the text of the selected option directly
-    voiceName=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:'Voice';
+    const sel = document.getElementById('voiceSel');
+    const voiceVal = sel.value;
+
+    if(!xaiKey) { showErr('Enter your xAI API key'); return; }
+    if(!elKey)  { showErr('Enter your ElevenLabs API key'); return; }
+
+    let voiceName;
+    if(voiceVal === '__custom__') {
+      voiceName = document.getElementById('customName').value.trim() || 'Custom Voice';
+    } else {
+      voiceName = selIdx >= 0 && sel.options[selIdx] ? sel.options[selIdx].text : voiceVal || 'Voice';
+    }
+
+    const gm = document.getElementById('grokModel');
+    const modelName = gm.options[gm.selectedIndex] ? gm.options[gm.selectedIndex].text.split('—')[0].trim() : 'Grok';
+
+    document.getElementById('setupErr').style.display = 'none';
+    document.getElementById('hsub').textContent  = modelName + ' · ' + voiceName;
+    const evoice = document.getElementById('evoice');
+    const ep = document.getElementById('ep');
+    if(evoice) evoice.textContent = voiceName;
+    if(ep) ep.textContent = preset !== 'standard' ? 'Personality: ' + PRESETS[preset].label : '';
+
+    document.getElementById('livePrompt').value   = document.getElementById('sysprompt').value;
+    document.getElementById('liveElModel').value  = document.getElementById('elModel').value;
+    document.getElementById('livePrefix').value   = document.getElementById('prefix').value;
+    ['stab','sim','sty','spd'].forEach(k => {
+      document.getElementById('l'+k).value = document.getElementById(k).value;
+      sl(document.getElementById('l'+k), 'l'+k+'_v');
+    });
+    updatePill();
+    slAll();
+    save();
+
+    history = [];
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('chat').classList.add('on');
+    setTimeout(() => document.getElementById('ci').focus(), 100);
+
+  } catch(err) {
+    alert('JS ERROR in go():\n' + err.message + '\n\n' + err.stack);
+    console.error(err);
   }
-
-  const gm=document.getElementById('grokModel');
-  const modelName=gm.options[gm.selectedIndex]?gm.options[gm.selectedIndex].text.split('—')[0].trim():'Grok';
-
-  document.getElementById('setupErr').style.display='none';
-  document.getElementById('hsub').textContent=modelName+' · '+voiceName;
-  document.getElementById('evoice').textContent=voiceName;
-  document.getElementById('ep').textContent=preset!=='standard'?'Personality: '+PRESETS[preset].label:'';
-
-  // Sync to live panel
-  document.getElementById('livePrompt').value    = document.getElementById('sysprompt').value;
-  document.getElementById('liveElModel').value   = document.getElementById('elModel').value;
-  document.getElementById('livePrefix').value    = document.getElementById('prefix').value;
-  ['stab','sim','sty','spd'].forEach(k=>{
-    document.getElementById('l'+k).value=document.getElementById(k).value;
-    sl(document.getElementById('l'+k),'l'+k+'_v');
-  });
-  updatePill();
-  slAll();
-  save();
-
-  history=[];
-  document.getElementById('setup').style.display='none';
-  document.getElementById('chat').classList.add('on');
-  setTimeout(()=>document.getElementById('ci').focus(),100);
 }
 
 function goSetup() {

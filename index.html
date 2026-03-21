@@ -368,6 +368,7 @@ input[type=range]::-moz-range-thumb {
     </div>
   </div>
 
+  <div id="setupError" style="display:none;color:#ff6b6b;font-family:'DM Mono',monospace;font-size:12px;text-align:center;padding:4px 0"></div>
   <button class="start-btn" id="startBtn" onclick="startChat()">START SESSION</button>
   <p class="privacy-note">Keys stay in your browser only.</p>
 </div>
@@ -534,15 +535,17 @@ const tagState = {};
 TAG_DEFS.forEach(t => { tagState[t.id] = { on: t.defaultOn, freq: t.defaultFreq }; });
 
 // ══════════════════════════════════════════════════════════════════════════
-// INIT
+// INIT — runs directly (script is at bottom of body, DOM is already ready)
 // ══════════════════════════════════════════════════════════════════════════
-buildWaveform();
-buildTagRows('tagRows', false);
-buildTagRows('liveTagRows', true);
-loadSettings();       // restore saved values before building sliders
-refreshAllSliders();
-setupAutosave();
-checkCanStart();      // evaluate button state with restored values
+function init() {
+  buildWaveform();
+  buildTagRows('tagRows', false);
+  buildTagRows('liveTagRows', true);
+  loadSettings();
+  refreshAllSliders();
+  setupAutosave();
+  checkCanStart();
+}
 
 // ══════════════════════════════════════════════════════════════════════════
 // WAVEFORM
@@ -727,73 +730,70 @@ function preprocessText(text) {
 }
 
 function applyEmphasis(text, freqPct) {
-  // Split preserving whitespace and punctuation
   const tokens = text.split(/(\s+)/);
-  
-  // Find candidate indices: content words not in stopwords, length > 3
   const candidates = [];
   tokens.forEach((tok, i) => {
     const clean = tok.replace(/[^a-zA-Z]/g, '').toLowerCase();
-    if (clean.length > 3 && !STOPWORDS.has(clean) && /^[a-zA-Z]/.test(tok) && tok === tok.toLowerCase()) {
+    // Content word: length > 3, not a stopword, starts with a letter
+    // Removed the "must be lowercase" restriction so sentence starters qualify too
+    if (clean.length > 3 && !STOPWORDS.has(clean) && /^[a-zA-Z]/.test(tok)) {
       candidates.push(i);
     }
   });
-
   if (candidates.length === 0) return text;
-
-  // How many to capitalize
   const count = Math.max(1, Math.round(candidates.length * (freqPct / 100)));
-
-  // Shuffle candidates and pick `count` of them
   const shuffled = [...candidates].sort(() => Math.random() - 0.5);
   const toCapSet = new Set(shuffled.slice(0, count));
-
   return tokens.map((tok, i) => toCapSet.has(i) ? tok.toUpperCase() : tok).join('');
 }
 
 // ══════════════════════════════════════════════════════════════════════════
 // LOCALSTORAGE PERSISTENCE
 // ══════════════════════════════════════════════════════════════════════════
-const LS = 'gvc_'; // namespace prefix
 
 function saveSettings() {
   try {
-    localStorage.setItem(LS+'grokKey',       document.getElementById('grokKey').value);
-    localStorage.setItem(LS+'elevenKey',     document.getElementById('elevenKey').value);
-    localStorage.setItem(LS+'grokModel',     document.getElementById('modelSelect').value);
-    localStorage.setItem(LS+'elevenModel',   document.getElementById('elevenModel').value);
-    localStorage.setItem(LS+'voiceId',       document.getElementById('voiceSelect').value);
-    localStorage.setItem(LS+'customVoiceId', document.getElementById('customVoiceId').value);
-    localStorage.setItem(LS+'customVoiceName', document.getElementById('customVoiceName').value);
-    localStorage.setItem(LS+'systemPrompt',  document.getElementById('systemPrompt').value);
-    localStorage.setItem(LS+'prefixTags',    document.getElementById('prefixTags').value);
-    localStorage.setItem(LS+'preset',        currentPreset);
-    localStorage.setItem(LS+'stability',     document.getElementById('stability').value);
-    localStorage.setItem(LS+'similarity',    document.getElementById('similarity').value);
-    localStorage.setItem(LS+'style',         document.getElementById('style').value);
-    localStorage.setItem(LS+'speed',         document.getElementById('speed').value);
-    localStorage.setItem(LS+'tagState',      JSON.stringify(tagState));
-  } catch(e) { /* private/incognito mode */ }
+    const set = (k, v) => localStorage.setItem('gvc_' + k, v);
+    set('grokKey',        document.getElementById('grokKey').value);
+    set('elevenKey',      document.getElementById('elevenKey').value);
+    set('grokModel',      document.getElementById('modelSelect').value);
+    set('elevenModel',    document.getElementById('elevenModel').value);
+    set('voiceId',        document.getElementById('voiceSelect').value);
+    set('customVoiceId',  document.getElementById('customVoiceId').value);
+    set('customVoiceName',document.getElementById('customVoiceName').value);
+    set('systemPrompt',   document.getElementById('systemPrompt').value);
+    set('prefixTags',     document.getElementById('prefixTags').value);
+    set('preset',         currentPreset);
+    set('stability',      document.getElementById('stability').value);
+    set('similarity',     document.getElementById('similarity').value);
+    set('style',          document.getElementById('style').value);
+    set('speed',          document.getElementById('speed').value);
+    set('tagState',       JSON.stringify(tagState));
+  } catch(e) { /* private/incognito */ }
 }
 
 function loadSettings() {
   try {
-    const get = k => localStorage.getItem(LS+k);
+    const get = k => localStorage.getItem('gvc_' + k);
 
     const grokKey = get('grokKey');
     const elevenKey = get('elevenKey');
-    if (grokKey)   document.getElementById('grokKey').value   = grokKey;
-    if (elevenKey) document.getElementById('elevenKey').value = elevenKey;
-    if (elevenKey) document.getElementById('loadVoicesBtn').disabled = elevenKey.trim().length < 10 ? true : false;
+    if (grokKey)   document.getElementById('grokKey').value = grokKey;
+    if (elevenKey) {
+      document.getElementById('elevenKey').value = elevenKey;
+      document.getElementById('loadVoicesBtn').disabled = elevenKey.trim().length < 10;
+    }
 
     const grokModel = get('grokModel');
     const elevenModel = get('elevenModel');
-    if (grokModel)   document.getElementById('modelSelect').value  = grokModel;
-    if (elevenModel) document.getElementById('elevenModel').value  = elevenModel;
+    if (grokModel && document.getElementById('modelSelect').querySelector(`option[value="${grokModel}"]`))
+      document.getElementById('modelSelect').value = grokModel;
+    if (elevenModel && document.getElementById('elevenModel').querySelector(`option[value="${elevenModel}"]`))
+      document.getElementById('elevenModel').value = elevenModel;
 
     const customVoiceId = get('customVoiceId');
     const customVoiceName = get('customVoiceName');
-    if (customVoiceId)   document.getElementById('customVoiceId').value   = customVoiceId;
+    if (customVoiceId)   document.getElementById('customVoiceId').value = customVoiceId;
     if (customVoiceName) document.getElementById('customVoiceName').value = customVoiceName;
 
     const systemPrompt = get('systemPrompt');
@@ -802,35 +802,41 @@ function loadSettings() {
     if (prefixTags   !== null) document.getElementById('prefixTags').value   = prefixTags;
 
     const preset = get('preset');
-    if (preset && PRESETS[preset]) selectPreset(preset);
+    if (preset && PRESETS[preset]) {
+      currentPreset = preset;
+      document.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
+      // Don't overwrite a saved custom prompt
+      if (preset !== 'custom') document.getElementById('systemPrompt').value = PRESETS[preset].prompt;
+    }
 
-    const stability  = get('stability');
-    const similarity = get('similarity');
-    const style      = get('style');
-    const speed      = get('speed');
-    if (stability)  { document.getElementById('stability').value  = stability;  syncSlider('stability'); }
-    if (similarity) { document.getElementById('similarity').value = similarity; syncSlider('similarity'); }
-    if (style)      { document.getElementById('style').value      = style;      syncSlider('style'); }
-    if (speed)      { document.getElementById('speed').value      = speed;      syncSlider('speed'); }
+    ['stability','similarity','style','speed'].forEach(k => {
+      const v = get(k);
+      if (v !== null) {
+        document.getElementById(k).value = v;
+        syncSlider(k);
+      }
+    });
 
     const savedTags = get('tagState');
     if (savedTags) {
-      const parsed = JSON.parse(savedTags);
-      Object.keys(parsed).forEach(id => { if (tagState[id]) tagState[id] = parsed[id]; });
+      try {
+        const parsed = JSON.parse(savedTags);
+        Object.keys(parsed).forEach(id => { if (tagState[id]) tagState[id] = parsed[id]; });
+      } catch(e) {}
     }
 
-    // Restore saved voice ID into select — if it matches an existing option great,
-    // otherwise we leave the default (voices will reload when user hits Load My Voices)
+    // Try to restore voice — if it's not in the current option list it won't stick,
+    // user will need to hit Load My Voices (which saves the correct value after)
     const voiceId = get('voiceId');
-    if (voiceId && voiceId !== '__custom__') {
-      // Try to set it — if the option doesn't exist yet (before Load My Voices), store for later
+    if (voiceId) {
       document.getElementById('voiceSelect').value = voiceId;
-      // If it didn't stick (option not in list), leave as-is
-    } else if (voiceId === '__custom__') {
-      document.getElementById('voiceSelect').value = '__custom__';
-      onVoiceSelectChange();
+      if (voiceId === '__custom__') {
+        document.getElementById('customVoiceBox').style.display = 'flex';
+      }
     }
-  } catch(e) { /* corrupted storage */ }
+  } catch(e) {
+    console.warn('loadSettings failed:', e);
+  }
 }
 
 // Auto-save on any relevant change
@@ -935,6 +941,7 @@ function updatePill() {
 // ══════════════════════════════════════════════════════════════════════════
 // CAN START?
 // ══════════════════════════════════════════════════════════════════════════
+// Visual hint only — never blocks clicks
 function checkCanStart() {
   const grok     = document.getElementById('grokKey').value.trim();
   const eleven   = document.getElementById('elevenKey').value.trim();
@@ -942,27 +949,30 @@ function checkCanStart() {
   const customId = document.getElementById('customVoiceId').value.trim();
   const voiceOk  = (voiceVal && voiceVal !== '__custom__') || (voiceVal === '__custom__' && customId.length > 5);
   const ok = !!(grok && eleven && voiceOk);
-  const btn = document.getElementById('startBtn');
-  btn.style.opacity = ok ? '1' : '0.4';
-  btn.style.cursor  = ok ? 'pointer' : 'not-allowed';
-  btn.style.pointerEvents = ok ? 'auto' : 'none';
+  document.getElementById('startBtn').style.opacity = ok ? '1' : '0.55';
 }
-document.getElementById('grokKey').addEventListener('input', checkCanStart);
-document.getElementById('elevenKey').addEventListener('input', checkCanStart);
-document.getElementById('customVoiceId').addEventListener('input', checkCanStart);
-document.getElementById('voiceSelect').addEventListener('change', checkCanStart);
 
 // ══════════════════════════════════════════════════════════════════════════
 // START / GO TO SETUP
 // ══════════════════════════════════════════════════════════════════════════
 function startChat() {
+  const grok    = document.getElementById('grokKey').value.trim();
+  const eleven  = document.getElementById('elevenKey').value.trim();
   const voiceVal = document.getElementById('voiceSelect').value;
   const customId = document.getElementById('customVoiceId').value.trim();
+  const voiceOk  = (voiceVal && voiceVal !== '__custom__') || (voiceVal === '__custom__' && customId.length > 5);
+
+  // Show inline errors rather than silently doing nothing
+  if (!grok) { showSetupError('Please enter your xAI API key'); return; }
+  if (!eleven) { showSetupError('Please enter your ElevenLabs API key'); return; }
+  if (!voiceOk) { showSetupError('Please select a voice or paste a Voice ID'); return; }
+
   const voiceName = voiceVal === '__custom__'
     ? (document.getElementById('customVoiceName').value.trim() || 'Custom Voice')
     : (document.getElementById('voiceSelect').selectedOptions[0]?.text || voiceVal);
   const modelName = document.getElementById('modelSelect').selectedOptions[0]?.text || '';
 
+  document.getElementById('setupError').style.display = 'none';
   document.getElementById('headerSub').textContent = `${modelName} · ${voiceName}`;
   document.getElementById('emptyVoice').textContent = voiceName;
   document.getElementById('emptyP').textContent = currentPreset !== 'standard' ? `Personality: ${PRESETS[currentPreset].label}` : '';
@@ -978,11 +988,18 @@ function startChat() {
   });
   updatePill();
   refreshAllSliders();
+  saveSettings();
 
   history = [];
   document.getElementById('setup').style.display = 'none';
   document.getElementById('chat').classList.add('active');
   document.getElementById('chatInput').focus();
+}
+
+function showSetupError(msg) {
+  const el = document.getElementById('setupError');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
 }
 
 function goToSetup() {
@@ -1063,7 +1080,7 @@ function addMsg(role, content) {
   document.getElementById('emptyState')?.remove();
   const msgs = document.getElementById('messages');
   const row = document.createElement('div'); row.className = `msg-row ${role}`;
-  if (role==='assistant') { const av=document.createElement('div'); av.className='avatar'; av.textContent='G'; row.appendChild(av); }
+  if (role==='assistant') { const av=document.createElement('div'); av.className='avatar'; av.textContent='A'; row.appendChild(av); }
   const b=document.createElement('div'); b.className=role==='user'?'bu':'ba'; b.textContent=content; row.appendChild(b);
   if (role==='user') { const av=document.createElement('div'); av.className='uavatar'; av.textContent='U'; row.appendChild(av); }
   msgs.appendChild(row); msgs.scrollTop=msgs.scrollHeight;
@@ -1079,7 +1096,7 @@ let typingEl=null;
 function showTyping(show) {
   if (show&&!typingEl) {
     typingEl=document.createElement('div'); typingEl.className='msg-row assistant';
-    typingEl.innerHTML='<div class="avatar">G</div><div class="ba"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    typingEl.innerHTML='<div class="avatar">A</div><div class="ba"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
     const m=document.getElementById('messages'); m.appendChild(typingEl); m.scrollTop=m.scrollHeight;
   } else if (!show&&typingEl) { typingEl.remove(); typingEl=null; }
 }
@@ -1241,8 +1258,9 @@ function stopMic() {
 // Init mic on load (checks support silently)
 initMic();
 
-// Ensure start button state is correct on load
-checkCanStart();
+// ── BOOT ──────────────────────────────────────────────────────────────────
+// Script is at bottom of body so DOM is ready — call init directly
+init();
 
 // Close panel on outside click
 document.addEventListener('click', e => {

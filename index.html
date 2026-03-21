@@ -4,216 +4,142 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ami Voice</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: #060410; color: #ead5fc; font-family: 'DM Sans', sans-serif; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#060410;color:#ead5fc;font-family:'DM Sans',sans-serif}
 
-#setup { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
-.card {
-  width: min(580px, 100%); background: #100818; border: 1px solid #2a0d40;
-  border-radius: 16px; padding: 36px 32px; display: flex; flex-direction: column; gap: 22px;
-}
-.logo-row { display: flex; align-items: center; gap: 14px; }
-.logo-hex { font-size: 36px; color: #c084fc; line-height: 1; }
-.logo-title { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 22px; color: #c084fc; letter-spacing: 3px; }
-.logo-sub { font-size: 12px; color: #6a3a8a; letter-spacing: 1px; margin-top: 2px; }
-
-.field { display: flex; flex-direction: column; gap: 8px; }
-label.lbl { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: #9a70c0; text-transform: uppercase; display: block; }
-.input-wrap { position: relative; display: flex; }
-input[type=text], input[type=password], select, textarea {
-  width: 100%; background: #140a1e; border: 1px solid #2a0d40; border-radius: 8px;
-  padding: 10px 14px; color: #ead5fc; font-size: 13px; font-family: 'DM Mono', monospace;
-  outline: none; letter-spacing: 0.5px;
-}
-input[type=text]:focus, input[type=password]:focus, select:focus, textarea:focus { border-color: #c084fc; }
-.input-wrap input { padding-right: 40px; }
-.eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 16px; padding: 0; }
-.hint-link { font-size: 11px; color: #b060f0; text-decoration: none; align-self: flex-start; }
-.hint-link:hover { text-decoration: underline; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-select { font-family: 'DM Sans', sans-serif; }
-select option, optgroup { background: #140a1e; }
-
-/* boxes */
-.inset-box { background: #080f0d; border: 1px solid #2a0d40; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.box-hint { font-size: 11px; color: #6a3a8a; line-height: 1.5; }
-
-/* buttons */
-.load-btn {
-  background: transparent; border: 1px solid #c084fc; border-radius: 7px;
-  color: #c084fc; font-family: 'DM Mono', monospace; font-size: 12px;
-  letter-spacing: 1px; padding: 8px 14px; cursor: pointer; align-self: flex-start; transition: background 0.2s;
-}
-.load-btn:hover { background: #c084fc1a; }
-.load-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.voice-status { font-family: 'DM Mono', monospace; font-size: 11px; }
-.voice-status.ok { color: #c084fc; }
-.voice-status.err { color: #ff6b6b; }
-
+/* ── SETUP ─────────────────────────────────────────────────────── */
+#setup{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
+.card{width:min(580px,100%);background:#100818;border:1px solid #2a0d40;border-radius:16px;padding:36px 32px;display:flex;flex-direction:column;gap:20px}
+.logo-row{display:flex;align-items:center;gap:14px}
+.logo-hex{font-size:36px;color:#c084fc;line-height:1}
+.logo-title{font-family:'DM Mono',monospace;font-weight:700;font-size:22px;color:#c084fc;letter-spacing:3px}
+.logo-sub{font-size:12px;color:#6a3a8a;letter-spacing:1px;margin-top:2px}
+.field{display:flex;flex-direction:column;gap:7px}
+.lbl{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:#9a70c0;text-transform:uppercase}
+.wrap{position:relative;display:flex}
+input[type=text],input[type=password],select,textarea{width:100%;background:#140a1e;border:1px solid #2a0d40;border-radius:8px;padding:10px 14px;color:#ead5fc;font-size:13px;font-family:'DM Mono',monospace;outline:none;letter-spacing:.5px}
+input[type=text]:focus,input[type=password]:focus,select:focus,textarea:focus{border-color:#c084fc}
+.wrap input{padding-right:40px}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0}
+.hint{font-size:11px;color:#b060f0;text-decoration:none;align-self:flex-start}
+.hint:hover{text-decoration:underline}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+select{font-family:'DM Sans',sans-serif}
+select option,optgroup{background:#140a1e}
+.inset{background:#080510;border:1px solid #2a0d40;border-radius:10px;padding:15px;display:flex;flex-direction:column;gap:11px}
+.inset-hint{font-size:11px;color:#4a1a6a;line-height:1.5}
+.load-btn{background:transparent;border:1px solid #c084fc;border-radius:7px;color:#c084fc;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;padding:8px 14px;cursor:pointer;align-self:flex-start;transition:background .2s}
+.load-btn:hover{background:#c084fc1a}
+.load-btn:disabled{opacity:.35;cursor:not-allowed}
+.vstatus{font-family:'DM Mono',monospace;font-size:11px}
+.vstatus.ok{color:#c084fc}
+.vstatus.err{color:#ff6b6b}
 /* personality */
-.pg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.preset-btn {
-  background: #140a1e; border: 1px solid #2a0d40; border-radius: 8px;
-  color: #9a70c0; font-family: 'DM Mono', monospace; font-size: 11px;
-  letter-spacing: 0.5px; padding: 8px 6px; cursor: pointer; transition: all 0.15s; text-align: center;
-}
-.preset-btn:hover { border-color: #c084fc; color: #c084fc; }
-.preset-btn.active { background: #002a1e; border-color: #c084fc; color: #c084fc; }
-.prompt-ta { height: 70px; resize: vertical; font-size: 12px; line-height: 1.5; }
-
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pb{background:#140a1e;border:1px solid #2a0d40;border-radius:8px;color:#7a4a9a;font-family:'DM Mono',monospace;font-size:11px;padding:8px 6px;cursor:pointer;transition:all .15s;text-align:center}
+.pb:hover,.pb.on{background:#1e0a2e;border-color:#c084fc;color:#c084fc}
+textarea.ta{height:72px;resize:vertical;font-size:12px;line-height:1.5}
 /* sliders */
-.slider-row { display: flex; flex-direction: column; gap: 4px; }
-.slider-label-row { display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 11px; color: #9a70c0; }
-.slider-label-row .val { color: #c084fc; min-width: 34px; text-align: right; }
-.slider-desc { font-size: 10px; color: #6a3a88; }
-input[type=range] {
-  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px;
-  background: linear-gradient(to right, #c084fc 0%, #c084fc var(--pct,50%), #2a1045 var(--pct,50%), #2a1045 100%);
-  outline: none; cursor: pointer; border: none; padding: 0;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
-  background: #c084fc; cursor: pointer; border: 2px solid #08050f; box-shadow: 0 0 6px rgba(0,245,196,0.4);
-}
-input[type=range]::-moz-range-thumb {
-  width: 14px; height: 14px; border-radius: 50%; background: #c084fc; cursor: pointer; border: 2px solid #08050f;
-}
-.vs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.vs-btn {
-  background: #100818; border: 1px solid #2a0d40; border-radius: 6px;
-  color: #6a3a8a; font-family: 'DM Mono', monospace; font-size: 10px;
-  padding: 6px 4px; cursor: pointer; transition: all 0.15s; text-align: center;
-}
-.vs-btn:hover { border-color: #c084fc; color: #c084fc; }
+.sr{display:flex;flex-direction:column;gap:4px}
+.slr{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:11px;color:#9a70c0}
+.slr .sv{color:#c084fc;min-width:34px;text-align:right}
+.sd{font-size:10px;color:#3a1a5a}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(to right,#c084fc 0%,#c084fc var(--pct,50%),#2a1045 var(--pct,50%),#2a1045 100%);outline:none;cursor:pointer;border:none;padding:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#c084fc;cursor:pointer;border:2px solid #060410;box-shadow:0 0 6px rgba(192,132,252,.4)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#c084fc;cursor:pointer;border:2px solid #060410}
+.vsg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.vsb{background:#0e0718;border:1px solid #2a0d40;border-radius:6px;color:#6a3a8a;font-family:'DM Mono',monospace;font-size:10px;padding:6px 4px;cursor:pointer;transition:all .15s;text-align:center}
+.vsb:hover{border-color:#c084fc;color:#c084fc}
+/* tags */
+.tag-row{display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:10px;padding:8px 10px;background:#0e0718;border-radius:8px;border:1px solid #2a0d40;transition:opacity .2s}
+.tag-row.off{opacity:.4}
+.tag-toggle{width:18px;height:18px;accent-color:#c084fc;cursor:pointer;flex-shrink:0}
+.tag-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tag-name{font-family:'DM Mono',monospace;font-size:12px;color:#ead5fc}
+.tag-desc{font-size:10px;color:#3a1a5a}
+.tag-fw{display:flex;align-items:center;gap:6px;min-width:120px}
+.tag-fw input[type=range]{width:80px}
+.tag-fv{font-family:'DM Mono',monospace;font-size:11px;color:#c084fc;min-width:34px;text-align:right}
+/* start */
+.setup-err{display:none;color:#ff6b6b;font-family:'DM Mono',monospace;font-size:12px;text-align:center;padding:4px 0;border:1px solid #ff6b6b33;border-radius:6px;background:#1a0808}
+.start-btn{background:#c084fc;color:#060410;border:none;border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;letter-spacing:3px;cursor:pointer;transition:opacity .2s}
+.privacy{font-size:11px;color:#3a1a5a;text-align:center}
 
-/* ── AUDIO TAGS ── */
-.tag-row {
-  display: grid; grid-template-columns: 18px 1fr auto; align-items: center;
-  gap: 10px; padding: 8px 10px; background: #100818; border-radius: 8px; border: 1px solid #2a0d40;
-}
-.tag-row.tag-on { border-color: #2a0d40; }
-.tag-row.tag-off { opacity: 0.45; }
-.tag-toggle { width: 18px; height: 18px; accent-color: #c084fc; cursor: pointer; flex-shrink: 0; }
-.tag-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.tag-name { font-family: 'DM Mono', monospace; font-size: 12px; color: #ead5fc; }
-.tag-desc { font-size: 10px; color: #6a3a88; }
-.tag-freq-wrap { display: flex; align-items: center; gap: 6px; min-width: 120px; }
-.tag-freq-wrap input[type=range] { width: 80px; }
-.tag-freq-val { font-family: 'DM Mono', monospace; font-size: 11px; color: #c084fc; min-width: 34px; text-align: right; }
-
-/* start btn */
-.start-btn {
-  margin-top: 4px; background: #c084fc; color: #08050f; border: none; border-radius: 8px;
-  padding: 14px; font-family: 'DM Mono', monospace; font-weight: 700; font-size: 14px;
-  letter-spacing: 3px; cursor: pointer; transition: opacity 0.2s;
-}
-.start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.privacy-note { font-size: 11px; color: #3a2055; text-align: center; }
-
-/* ══ CHAT ══ */
-#chat { display: none; height: 100vh; flex-direction: column; position: relative; }
-#chat.active { display: flex; }
-.chat-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 20px; border-bottom: 1px solid #2a0d40; background: #0e070f;
-  flex-shrink: 0; gap: 10px;
-}
-.header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.header-title { font-family: 'DM Mono', monospace; font-weight: 700; font-size: 15px; color: #c084fc; letter-spacing: 2px; }
-.header-sub { font-size: 10px; color: #8a60b0; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.header-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
-.p-pill {
-  background: #140a1e; border: 1px solid #2a0d40; border-radius: 20px;
-  color: #9a70c0; font-family: 'DM Mono', monospace; font-size: 10px;
-  letter-spacing: 1px; padding: 4px 10px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
-}
-.p-pill:hover { border-color: #c084fc; color: #c084fc; }
-.p-pill.p-spicy   { border-color: #ff6b6b; color: #ff6b6b; background: #1a0820; }
-.p-pill.p-honest  { border-color: #ffd93d; color: #ffd93d; background: #1a1500; }
-.p-pill.p-flirty  { border-color: #ff9eb5; color: #ff9eb5; background: #1a0812; }
-.p-pill.p-custom  { border-color: #c084fc; color: #c084fc; background: #002a1e; }
-.icon-btn { background: none; border: 1px solid #2a0d40; border-radius: 8px; color: #9a70c0; font-size: 15px; padding: 5px 9px; cursor: pointer; }
-.icon-btn:hover { border-color: #c084fc; color: #c084fc; }
-.stop-btn { background: #2a1045; border: 1px solid #c084fc; border-radius: 8px; color: #c084fc; font-size: 12px; padding: 5px 9px; cursor: pointer; font-weight: 700; }
-.waveform { display: flex; align-items: center; gap: 3px; height: 28px; }
-.wave-bar { width: 3px; background: #2a1045; border-radius: 2px; height: 6px; transition: background 0.3s; }
-.wave-bar.playing { background: #c084fc; animation: wave 0.6s ease-in-out infinite alternate; }
-@keyframes wave { from { height: 4px; } to { height: 26px; } }
-
+/* ── CHAT ───────────────────────────────────────────────────────── */
+#chat{display:none;height:100vh;flex-direction:column;position:relative}
+#chat.on{display:flex}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid #2a0d40;background:#0e0718;flex-shrink:0;gap:10px}
+.hl{display:flex;align-items:center;gap:10px;min-width:0}
+.htitle{font-family:'DM Mono',monospace;font-weight:700;font-size:15px;color:#c084fc;letter-spacing:2px}
+.hsub{font-size:10px;color:#8a60b0;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hr2{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.ppill{background:#140a1e;border:1px solid #2a0d40;border-radius:20px;color:#7a4a9a;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:4px 10px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ppill:hover{border-color:#c084fc;color:#c084fc}
+.ppill.p-spicy{border-color:#ff6b6b;color:#ff6b6b;background:#1a0820}
+.ppill.p-honest{border-color:#ffd93d;color:#ffd93d;background:#1a1500}
+.ppill.p-flirty{border-color:#ff9eb5;color:#ff9eb5;background:#1a0812}
+.ppill.p-custom{border-color:#c084fc;color:#c084fc;background:#1e0a2e}
+.wf{display:flex;align-items:center;gap:3px;height:28px}
+.wb{width:3px;background:#2a1045;border-radius:2px;height:6px;transition:background .3s}
+.wb.on{background:#c084fc;animation:wave .6s ease-in-out infinite alternate}
+@keyframes wave{from{height:4px}to{height:26px}}
+.ib{background:none;border:1px solid #2a0d40;border-radius:8px;color:#7a4a9a;font-size:15px;padding:5px 9px;cursor:pointer}
+.ib:hover{border-color:#c084fc;color:#c084fc}
+.sb2{background:#1a1030;border:1px solid #c084fc;border-radius:8px;color:#c084fc;font-size:12px;padding:5px 9px;cursor:pointer;font-weight:700}
 /* quick panel */
-.qpanel {
-  display: none; position: absolute; top: 58px; right: 16px; z-index: 200;
-  background: #100818; border: 1px solid #2a0d40; border-radius: 12px;
-  padding: 18px; width: 360px; flex-direction: column; gap: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.7); max-height: calc(100vh - 80px); overflow-y: auto;
-}
-.qpanel.open { display: flex; }
-.panel-hdr { display: flex; align-items: center; }
-.panel-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 2px; color: #9a70c0; text-transform: uppercase; }
-.panel-close { background: none; border: none; color: #9a70c0; font-size: 20px; cursor: pointer; margin-left: auto; padding: 0; line-height: 1; }
-.panel-close:hover { color: #c084fc; }
-.pdivider { border: none; border-top: 1px solid #2a0d40; margin: 0; }
+.qp{display:none;position:absolute;top:58px;right:16px;z-index:200;background:#100818;border:1px solid #2a0d40;border-radius:12px;padding:18px;width:360px;flex-direction:column;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.7);max-height:calc(100vh - 80px);overflow-y:auto}
+.qp.on{display:flex}
+.qph{display:flex;align-items:center}
+.qptitle{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:#9a70c0;text-transform:uppercase}
+.qpclose{background:none;border:none;color:#7a4a9a;font-size:20px;cursor:pointer;margin-left:auto;padding:0;line-height:1}
+.qpclose:hover{color:#c084fc}
+hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
+/* messages */
+.msgs{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:14px;max-width:740px;width:100%;margin:0 auto}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin-top:80px}
+.e-hex{font-size:56px;color:#1e0a2e}
+.e-title{font-size:18px;color:#4a1a6a;font-weight:600}
+.e-sub{font-size:13px;color:#2a0d40}
+.e-sub span{color:#c084fc}
+.e-p{font-size:11px;color:#2a0d40;font-family:'DM Mono',monospace}
+.mr{display:flex;gap:10px;align-items:flex-end}
+.mr.u{justify-content:flex-end}
+.av{width:30px;height:30px;border-radius:50%;background:#c084fc;color:#060410;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'DM Mono',monospace;flex-shrink:0}
+.uav{width:30px;height:30px;border-radius:50%;background:#1e0a2e;color:#7a4a9a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.ba{max-width:72%;background:#140a1e;border:1px solid #2a0d40;border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:14px;line-height:1.65;color:#ead5fc;white-space:pre-wrap}
+.bu{max-width:72%;background:#1a0830;border:1px solid #2d0a4a;border-radius:14px 4px 14px 14px;padding:12px 16px;font-size:14px;line-height:1.65;color:#d8b0f8;white-space:pre-wrap}
+.dots{display:flex;gap:5px;align-items:center;padding:4px 0}
+.dot{width:7px;height:7px;border-radius:50%;background:#c084fc;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.smsg{text-align:center;font-size:12px;color:#4a1a6a;font-family:'DM Mono',monospace;letter-spacing:1px}
+.ev{text-align:center;font-size:11px;color:#3a1858;font-family:'DM Mono',monospace;padding:2px 0}
+/* input */
+.ibar{background:#0e0718;border-top:1px solid #2a0d40;flex-shrink:0}
+.ia{display:flex;gap:10px;padding:14px 16px;max-width:740px;width:100%;margin:0 auto}
+.ci{flex:1;background:#140a1e;border:1px solid #2a0d40;border-radius:10px;padding:12px 16px;color:#ead5fc;font-size:14px;outline:none;font-family:'DM Sans',sans-serif}
+.ci:focus{border-color:#c084fc}
+.sendbtn{background:#c084fc;border:none;border-radius:10px;width:46px;height:46px;color:#060410;font-size:20px;font-weight:800;cursor:pointer;transition:opacity .2s;flex-shrink:0}
+.sendbtn:disabled{opacity:.35;cursor:not-allowed}
+.micbtn{background:#140a1e;border:1px solid #2a0d40;border-radius:10px;width:46px;height:46px;font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.micbtn.on{background:#1a0820;border-color:#ff4444;animation:mpulse 1s ease-in-out infinite}
+@keyframes mpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.4)}50%{box-shadow:0 0 0 8px rgba(255,68,68,0)}}
+.mstat{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#ff4444;letter-spacing:1px;height:18px;padding-bottom:6px}
 
-.messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; max-width: 740px; width: 100%; margin: 0 auto; }
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; margin-top: 80px; }
-.empty-hex { font-size: 56px; color: #2a0d40; }
-.empty-title { font-size: 18px; color: #7a4a9a; font-weight: 600; }
-.empty-sub { font-size: 13px; color: #2a1045; }
-.empty-sub span { color: #c084fc; }
-.empty-p { font-size: 11px; color: #2a1045; font-family: 'DM Mono', monospace; }
-.msg-row { display: flex; gap: 10px; align-items: flex-end; }
-.msg-row.user { justify-content: flex-end; }
-.avatar { width: 30px; height: 30px; border-radius: 50%; background: #c084fc; color: #08050f; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; font-family: 'DM Mono', monospace; flex-shrink: 0; }
-.uavatar { width: 30px; height: 30px; border-radius: 50%; background: #2a1045; color: #9a70c0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; flex-shrink: 0; }
-.ba { max-width: 72%; background: #140a1e; border: 1px solid #2a0d40; border-radius: 4px 14px 14px 14px; padding: 12px 16px; font-size: 14px; line-height: 1.65; color: #ead5fc; white-space: pre-wrap; }
-.bu { max-width: 72%; background: #1a0830; border: 1px solid #2d0a4a; border-radius: 14px 4px 14px 14px; padding: 12px 16px; font-size: 14px; line-height: 1.65; color: #d8b0f8; white-space: pre-wrap; }
-.typing-dots { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: #c084fc; animation: blink 1.2s infinite; }
-.dot:nth-child(2) { animation-delay: 0.2s; }
-.dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
-.status-msg { text-align: center; font-size: 12px; color: #7a4a9a; font-family: 'DM Mono', monospace; letter-spacing: 1px; }
-.event-bubble { text-align: center; font-size: 11px; color: #6a3a88; font-family: 'DM Mono', monospace; padding: 2px 0; }
-
-.input-bar { background: #0e070f; border-top: 1px solid #2a0d40; flex-shrink: 0; }
-.input-area { display: flex; gap: 10px; padding: 14px 16px; max-width: 740px; width: 100%; margin: 0 auto; }
-.chat-input { flex: 1; background: #140a1e; border: 1px solid #2a0d40; border-radius: 10px; padding: 12px 16px; color: #ead5fc; font-size: 14px; outline: none; font-family: 'DM Sans', sans-serif; }
-.chat-input:focus { border-color: #c084fc; }
-.send-btn { background: #c084fc; border: none; border-radius: 10px; width: 46px; height: 46px; color: #08050f; font-size: 20px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; flex-shrink: 0; }
-.send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.mic-btn {
-  background: #140a1e; border: 1px solid #2a0d40; border-radius: 10px;
-  width: 46px; height: 46px; font-size: 20px; cursor: pointer;
-  flex-shrink: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
-}
-.mic-btn.listening {
-  background: #1a0820; border-color: #ff4444;
-  animation: micPulse 1s ease-in-out infinite;
-}
-.mic-btn.no-support { opacity: 0.3; cursor: not-allowed; }
-@keyframes micPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
-  50%      { box-shadow: 0 0 0 8px rgba(255,68,68,0); }
-}
-.mic-status {
-  text-align: center; font-family: 'DM Mono', monospace; font-size: 11px;
-  color: #ff4444; letter-spacing: 1px; height: 18px; padding-bottom: 6px;
-}
-
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #08050f; }
-::-webkit-scrollbar-thumb { background: #2a0d40; border-radius: 3px; }
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#060410}
+::-webkit-scrollbar-thumb{background:#2a0d40;border-radius:3px}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════ SETUP ══════════════════════════════════════════════ -->
+<!-- ════════════════ SETUP ════════════════════════════════════════ -->
 <div id="setup">
 <div class="card">
+
   <div class="logo-row">
     <span class="logo-hex">⬡</span>
     <div>
@@ -222,32 +148,33 @@ input[type=range]::-moz-range-thumb {
     </div>
   </div>
 
-  <!-- Keys -->
+  <!-- xAI key -->
   <div class="field">
     <label class="lbl">xAI API Key</label>
-    <div class="input-wrap">
-      <input type="password" id="grokKey" placeholder="xai-…">
-      <button class="eye-btn" onclick="toggleKey('grokKey',this)">👁</button>
+    <div class="wrap">
+      <input type="password" id="xaiKey" placeholder="xai-…">
+      <button class="eye" onclick="toggleEye('xaiKey',this)">👁</button>
     </div>
-    <a class="hint-link" href="https://console.x.ai/" target="_blank">Get key at console.x.ai →</a>
+    <a class="hint" href="https://console.x.ai/" target="_blank">console.x.ai →</a>
   </div>
 
+  <!-- ElevenLabs key -->
   <div class="field">
     <label class="lbl">ElevenLabs API Key</label>
-    <div class="input-wrap">
-      <input type="password" id="elevenKey" placeholder="sk_…" oninput="onElevenKeyChange()">
-      <button class="eye-btn" onclick="toggleKey('elevenKey',this)">👁</button>
+    <div class="wrap">
+      <input type="password" id="elKey" placeholder="sk_…">
+      <button class="eye" onclick="toggleEye('elKey',this)">👁</button>
     </div>
-    <a class="hint-link" href="https://elevenlabs.io/" target="_blank">Get key at elevenlabs.io →</a>
-    <button class="load-btn" id="loadVoicesBtn" onclick="fetchVoices()" disabled>Load My Voices</button>
-    <div class="voice-status" id="voiceStatus"></div>
+    <a class="hint" href="https://elevenlabs.io/" target="_blank">elevenlabs.io →</a>
+    <button class="load-btn" id="loadBtn" onclick="loadVoices()" disabled>Load My Voices</button>
+    <div class="vstatus" id="vstat"></div>
   </div>
 
-  <!-- Voice + Model + ElevenLabs model -->
+  <!-- Voice + Grok model -->
   <div class="row2">
     <div class="field">
       <label class="lbl">Voice</label>
-      <select id="voiceSelect" onchange="onVoiceSelectChange()">
+      <select id="voiceSel">
         <optgroup label="Premade">
           <option value="21m00Tcm4TlvDq8ikWAM">Rachel</option>
           <option value="AZnzlk1XvdvUeBnXmlld">Domi</option>
@@ -257,1017 +184,787 @@ input[type=range]::-moz-range-thumb {
           <option value="pNInz6obpgDQGcFmaJgB">Adam</option>
         </optgroup>
         <optgroup label="Custom">
-          <option value="__custom__">★ Paste my Voice ID…</option>
+          <option value="__custom__">★ Paste Voice ID…</option>
         </optgroup>
       </select>
     </div>
     <div class="field">
       <label class="lbl">Grok Model</label>
-      <select id="modelSelect">
-        <optgroup label="Grok 4 (Latest)">
-          <option value="grok-4">Grok 4 — Most capable</option>
-          <option value="grok-4-1">Grok 4.1 — Fast + agentic</option>
+      <select id="grokModel">
+        <optgroup label="Grok 4">
+          <option value="grok-4">Grok 4</option>
+          <option value="grok-4-1">Grok 4.1</option>
         </optgroup>
         <optgroup label="Grok 3">
-          <option value="grok-3">Grok 3 — Balanced</option>
-          <option value="grok-3-mini">Grok 3 Mini — Fastest</option>
+          <option value="grok-3" selected>Grok 3</option>
+          <option value="grok-3-mini">Grok 3 Mini</option>
         </optgroup>
         <optgroup label="Grok 2">
-          <option value="grok-2-1212">Grok 2 — Legacy</option>
+          <option value="grok-2-1212">Grok 2</option>
         </optgroup>
       </select>
     </div>
   </div>
 
-  <!-- ElevenLabs model -->
-  <div class="field">
-    <label class="lbl">ElevenLabs Voice Model</label>
-    <select id="elevenModel">
-      <option value="eleven_v3">v3 — Most expressive, best audio tags ★</option>
-      <option value="eleven_multilingual_v2">Multilingual v2 — Best for custom/cloned voices</option>
-      <option value="eleven_flash_v2_5">Flash v2.5 — Fastest, low latency</option>
-      <option value="eleven_turbo_v2_5">Turbo v2.5 — Fast &amp; expressive</option>
-      <option value="eleven_turbo_v2">Turbo v2 — Fast</option>
-    </select>
-    <div style="font-size:10px;color:#6a3a88">v3 has the best audio tag support but higher latency. If your cloned voice sounds off on v3, try Multilingual v2.</div>
+  <!-- Custom voice ID -->
+  <div class="inset" id="customBox" style="display:none">
+    <div class="inset-hint">ElevenLabs → Voices → click your voice → copy the Voice ID at the bottom.</div>
+    <input type="text" id="customId" placeholder="Voice ID…">
+    <input type="text" id="customName" placeholder="Nickname (e.g. Andreea)">
   </div>
 
-  <!-- Custom Voice ID -->
-  <div class="inset-box" id="customVoiceBox" style="display:none">
-    <div class="box-hint">ElevenLabs → Voices → click your voice → copy the Voice ID shown at the bottom.</div>
-    <input type="text" id="customVoiceId" placeholder="Voice ID…" oninput="checkCanStart()">
-    <input type="text" id="customVoiceName" placeholder="Nickname (optional, e.g. Ami)">
+  <!-- ElevenLabs model -->
+  <div class="field">
+    <label class="lbl">ElevenLabs Model</label>
+    <select id="elModel">
+      <option value="eleven_v3">v3 — Most expressive, best audio tags ★</option>
+      <option value="eleven_multilingual_v2">Multilingual v2 — Best for cloned voices</option>
+      <option value="eleven_flash_v2_5">Flash v2.5 — Fastest</option>
+      <option value="eleven_turbo_v2_5">Turbo v2.5 — Fast &amp; expressive</option>
+    </select>
+    <div style="font-size:10px;color:#3a1a5a">v3 has the best audio tag support. If your cloned voice sounds odd, try Multilingual v2.</div>
   </div>
 
   <!-- Personality -->
   <div class="field">
     <label class="lbl">Personality</label>
     <div class="pg">
-      <button class="preset-btn active" data-preset="standard"    onclick="selectPreset('standard')">Standard</button>
-      <button class="preset-btn"        data-preset="spicy"       onclick="selectPreset('spicy')">🌶 Spicy</button>
-      <button class="preset-btn"        data-preset="honest"      onclick="selectPreset('honest')">💀 Brutal</button>
-      <button class="preset-btn"        data-preset="flirty"      onclick="selectPreset('flirty')">💋 Flirty</button>
-      <button class="preset-btn"        data-preset="philosopher" onclick="selectPreset('philosopher')">🧠 Deep</button>
-      <button class="preset-btn"        data-preset="custom"      onclick="selectPreset('custom')">✏ Custom</button>
+      <button class="pb on" data-p="standard"    onclick="setPreset('standard',this)">Standard</button>
+      <button class="pb"    data-p="spicy"       onclick="setPreset('spicy',this)">🌶 Spicy</button>
+      <button class="pb"    data-p="honest"      onclick="setPreset('honest',this)">💀 Brutal</button>
+      <button class="pb"    data-p="flirty"      onclick="setPreset('flirty',this)">💋 Flirty</button>
+      <button class="pb"    data-p="philosopher" onclick="setPreset('philosopher',this)">🧠 Deep</button>
+      <button class="pb"    data-p="custom"      onclick="setPreset('custom',this)">✏ Custom</button>
     </div>
-    <textarea class="prompt-ta" id="systemPrompt" placeholder="System prompt…"></textarea>
+    <textarea class="ta" id="sysprompt" placeholder="System prompt…"></textarea>
   </div>
 
   <!-- Voice settings -->
   <div class="field">
     <label class="lbl">Voice Settings</label>
-    <div class="inset-box">
-      <div class="vs-grid">
-        <button class="vs-btn" onclick="applyVP('natural')">Natural</button>
-        <button class="vs-btn" onclick="applyVP('expressive')">Expressive</button>
-        <button class="vs-btn" onclick="applyVP('seductive')">Seductive</button>
-        <button class="vs-btn" onclick="applyVP('dramatic')">Dramatic</button>
-        <button class="vs-btn" onclick="applyVP('calm')">Calm</button>
-        <button class="vs-btn" onclick="applyVP('clear')">Clear</button>
+    <div class="inset">
+      <div class="vsg">
+        <button class="vsb" onclick="applyVP('natural')">Natural</button>
+        <button class="vsb" onclick="applyVP('expressive')">Expressive</button>
+        <button class="vsb" onclick="applyVP('seductive')">Seductive</button>
+        <button class="vsb" onclick="applyVP('dramatic')">Dramatic</button>
+        <button class="vsb" onclick="applyVP('calm')">Calm</button>
+        <button class="vsb" onclick="applyVP('clear')">Clear</button>
       </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Stability</span><span class="val" id="stabilityVal">0.25</span></div>
-        <div class="slider-desc">Low = emotional variance · High = consistent/flat</div>
-        <input type="range" id="stability" min="0" max="100" value="25" oninput="syncSlider('stability')">
+      <div class="sr">
+        <div class="slr"><span>Stability</span><span class="sv" id="stab_v">0.25</span></div>
+        <div class="sd">Low = emotional · High = consistent/flat</div>
+        <input type="range" id="stab" min="0" max="100" value="25" oninput="sl(this,'stab_v')">
       </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Similarity Boost</span><span class="val" id="similarityVal">0.85</span></div>
-        <div class="slider-desc">Higher = stays truer to your voice character</div>
-        <input type="range" id="similarity" min="0" max="100" value="85" oninput="syncSlider('similarity')">
+      <div class="sr">
+        <div class="slr"><span>Similarity</span><span class="sv" id="sim_v">0.85</span></div>
+        <div class="sd">Higher = truer to your voice character</div>
+        <input type="range" id="sim" min="0" max="100" value="85" oninput="sl(this,'sim_v')">
       </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Style Exaggeration</span><span class="val" id="styleVal">0.45</span></div>
-        <div class="slider-desc">Amplifies natural style — higher = more dramatic</div>
-        <input type="range" id="style" min="0" max="100" value="45" oninput="syncSlider('style')">
+      <div class="sr">
+        <div class="slr"><span>Style</span><span class="sv" id="sty_v">0.45</span></div>
+        <div class="sd">Higher = more dramatic delivery</div>
+        <input type="range" id="sty" min="0" max="100" value="45" oninput="sl(this,'sty_v')">
       </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Speed</span><span class="val" id="speedVal">0.70</span></div>
-        <div class="slider-desc">0.3 = very slow drawl · 0.7 = slow · 1.0 = normal</div>
-        <input type="range" id="speed" min="30" max="120" value="70" oninput="syncSlider('speed')">
+      <div class="sr">
+        <div class="slr"><span>Speed</span><span class="sv" id="spd_v">0.70</span></div>
+        <div class="sd">0.3 = very slow drawl · 0.7 = slow · 1.0 = normal</div>
+        <input type="range" id="spd" min="30" max="120" value="70" oninput="sl(this,'spd_v')">
       </div>
+    </div>
+  </div>
+
+  <!-- TTS prefix tags -->
+  <div class="field">
+    <label class="lbl">TTS Prefix Tags</label>
+    <div class="inset">
+      <div class="inset-hint">Prepended verbatim before every TTS call. Works best with v3.</div>
+      <input type="text" id="prefix" value="[romanian accent] [seductive] [very slow pace]">
     </div>
   </div>
 
   <!-- Audio direction tags -->
   <div class="field">
     <label class="lbl">Audio Direction Tags</label>
-    <div class="inset-box">
-      <div class="box-hint">
-        These are applied to the text before it's sent to ElevenLabs. Toggle each tag on/off and set how frequently it fires. <strong style="color:#ead5fc">[emphasise]</strong> capitalises key words so ElevenLabs stresses them.
-      </div>
+    <div class="inset">
+      <div class="inset-hint">Applied to text before TTS. Toggle on/off and set frequency.</div>
       <div id="tagRows"></div>
     </div>
   </div>
 
-  <!-- Prefix tags -->
-  <div class="field">
-    <label class="lbl">TTS Prefix Tags</label>
-    <div class="inset-box">
-      <div class="box-hint">Prepended verbatim to every TTS call. ElevenLabs Turbo v2.5 / Flash v2.5 respond to bracketed speech directions like <strong style="color:#ead5fc">[whispering]</strong>, <strong style="color:#ead5fc">[laughs]</strong>, <strong style="color:#ead5fc">[sighs]</strong>. Accent/emotion tags may vary — experiment.</div>
-      <input type="text" id="prefixTags" value="[romanian accent] [seductive] [very slow pace]" placeholder="e.g. [whispering] [sighs]">
-    </div>
-  </div>
-
-  <div id="setupError" style="display:none;color:#ff6b6b;font-family:'DM Mono',monospace;font-size:12px;text-align:center;padding:4px 0"></div>
-  <button class="start-btn" id="startBtn" onclick="startChat()">START SESSION</button>
-  <p class="privacy-note">Keys stay in your browser only.</p>
+  <div class="setup-err" id="setupErr"></div>
+  <button class="start-btn" onclick="go()">START SESSION</button>
+  <p class="privacy">Keys saved in your browser only.</p>
 </div>
 </div>
 
-<!-- ══════════════════ CHAT ═══════════════════════════════════════════════ -->
+<!-- ════════════════ CHAT ════════════════════════════════════════ -->
 <div id="chat">
-  <div class="chat-header">
-    <div class="header-left">
+  <div class="hdr">
+    <div class="hl">
       <span class="logo-hex" style="font-size:20px;flex-shrink:0">⬡</span>
       <div style="min-width:0">
-        <div class="header-title">AMI VOICE</div>
-        <div class="header-sub" id="headerSub">Grok 3</div>
+        <div class="htitle">AMI VOICE</div>
+        <div class="hsub" id="hsub">Grok 3 · Rachel</div>
       </div>
     </div>
-    <div class="header-right">
-      <div class="waveform" id="waveform"></div>
-      <button class="stop-btn" id="stopBtn" onclick="stopAudio()" style="display:none">■</button>
-      <button class="p-pill" id="pPill" onclick="toggleQPanel()">Standard</button>
-      <button class="icon-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-      <button class="icon-btn" onclick="goToSetup()">⚙</button>
+    <div class="hr2">
+      <div class="wf" id="wf"></div>
+      <button class="sb2" id="stopBtn" onclick="stopAudio()" style="display:none">■</button>
+      <button class="ppill" id="pill" onclick="togglePanel()">Standard</button>
+      <button class="ib" id="muteBtn" onclick="toggleMute()">🔊</button>
+      <button class="ib" onclick="goSetup()">⚙</button>
     </div>
   </div>
 
   <!-- Quick panel -->
-  <div class="qpanel" id="qpanel">
-    <div class="panel-hdr">
-      <span class="panel-title">Live Controls</span>
-      <button class="panel-close" onclick="toggleQPanel()">×</button>
+  <div class="qp" id="qp">
+    <div class="qph">
+      <span class="qptitle">Live Controls</span>
+      <button class="qpclose" onclick="togglePanel()">×</button>
     </div>
-
     <div class="field">
       <label class="lbl">Personality</label>
       <div class="pg">
-        <button class="preset-btn" data-p2="standard"    onclick="switchP('standard')">Standard</button>
-        <button class="preset-btn" data-p2="spicy"       onclick="switchP('spicy')">🌶 Spicy</button>
-        <button class="preset-btn" data-p2="honest"      onclick="switchP('honest')">💀 Brutal</button>
-        <button class="preset-btn" data-p2="flirty"      onclick="switchP('flirty')">💋 Flirty</button>
-        <button class="preset-btn" data-p2="philosopher" onclick="switchP('philosopher')">🧠 Deep</button>
-        <button class="preset-btn" data-p2="custom"      onclick="switchP('custom')">✏ Custom</button>
+        <button class="pb" data-lp="standard"    onclick="livePreset('standard',this)">Standard</button>
+        <button class="pb" data-lp="spicy"       onclick="livePreset('spicy',this)">🌶 Spicy</button>
+        <button class="pb" data-lp="honest"      onclick="livePreset('honest',this)">💀 Brutal</button>
+        <button class="pb" data-lp="flirty"      onclick="livePreset('flirty',this)">💋 Flirty</button>
+        <button class="pb" data-lp="philosopher" onclick="livePreset('philosopher',this)">🧠 Deep</button>
+        <button class="pb" data-lp="custom"      onclick="livePreset('custom',this)">✏ Custom</button>
       </div>
-      <textarea id="livePrompt" class="prompt-ta" style="margin-top:6px" placeholder="System prompt…"></textarea>
+      <textarea class="ta" id="livePrompt" style="margin-top:6px" placeholder="System prompt…"></textarea>
     </div>
-
-    <hr class="pdivider">
-
+    <hr class="div">
     <div class="field">
       <label class="lbl">ElevenLabs Model</label>
-      <select id="liveElevenModel">
-        <option value="eleven_v3">v3 — Most expressive ★</option>
+      <select id="liveElModel">
+        <option value="eleven_v3">v3 ★</option>
         <option value="eleven_multilingual_v2">Multilingual v2</option>
-        <option value="eleven_flash_v2_5">Flash v2.5 — Fastest</option>
+        <option value="eleven_flash_v2_5">Flash v2.5</option>
         <option value="eleven_turbo_v2_5">Turbo v2.5</option>
-        <option value="eleven_turbo_v2">Turbo v2</option>
       </select>
     </div>
-
     <div class="field">
       <label class="lbl">Voice Settings</label>
-      <div class="vs-grid" style="margin-bottom:6px">
-        <button class="vs-btn" onclick="applyVP('natural',true)">Natural</button>
-        <button class="vs-btn" onclick="applyVP('expressive',true)">Expressive</button>
-        <button class="vs-btn" onclick="applyVP('seductive',true)">Seductive</button>
-        <button class="vs-btn" onclick="applyVP('dramatic',true)">Dramatic</button>
-        <button class="vs-btn" onclick="applyVP('calm',true)">Calm</button>
-        <button class="vs-btn" onclick="applyVP('clear',true)">Clear</button>
+      <div class="vsg" style="margin-bottom:6px">
+        <button class="vsb" onclick="applyVP('natural',1)">Natural</button>
+        <button class="vsb" onclick="applyVP('expressive',1)">Expressive</button>
+        <button class="vsb" onclick="applyVP('seductive',1)">Seductive</button>
+        <button class="vsb" onclick="applyVP('dramatic',1)">Dramatic</button>
+        <button class="vsb" onclick="applyVP('calm',1)">Calm</button>
+        <button class="vsb" onclick="applyVP('clear',1)">Clear</button>
       </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Stability</span><span class="val" id="lStabilityVal">0.25</span></div>
-        <input type="range" id="lStability" min="0" max="100" value="25" oninput="syncSlider('lStability')">
-      </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Similarity</span><span class="val" id="lSimilarityVal">0.85</span></div>
-        <input type="range" id="lSimilarity" min="0" max="100" value="85" oninput="syncSlider('lSimilarity')">
-      </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Style</span><span class="val" id="lStyleVal">0.45</span></div>
-        <input type="range" id="lStyle" min="0" max="100" value="45" oninput="syncSlider('lStyle')">
-      </div>
-      <div class="slider-row">
-        <div class="slider-label-row"><span>Speed</span><span class="val" id="lSpeedVal">0.70</span></div>
-        <input type="range" id="lSpeed" min="30" max="120" value="70" oninput="syncSlider('lSpeed')">
-      </div>
+      <div class="sr"><div class="slr"><span>Stability</span><span class="sv" id="lstab_v">0.25</span></div><input type="range" id="lstab" min="0" max="100" value="25" oninput="sl(this,'lstab_v')"></div>
+      <div class="sr"><div class="slr"><span>Similarity</span><span class="sv" id="lsim_v">0.85</span></div><input type="range" id="lsim" min="0" max="100" value="85" oninput="sl(this,'lsim_v')"></div>
+      <div class="sr"><div class="slr"><span>Style</span><span class="sv" id="lsty_v">0.45</span></div><input type="range" id="lsty" min="0" max="100" value="45" oninput="sl(this,'lsty_v')"></div>
+      <div class="sr"><div class="slr"><span>Speed</span><span class="sv" id="lspd_v">0.70</span></div><input type="range" id="lspd" min="30" max="120" value="70" oninput="sl(this,'lspd_v')"></div>
     </div>
-
-    <hr class="pdivider">
+    <hr class="div">
     <div class="field">
       <label class="lbl">TTS Prefix Tags</label>
-      <input type="text" id="livePrefixTags" placeholder="[accent] [emotion]…">
+      <input type="text" id="livePrefix" placeholder="[accent] [emotion]…">
     </div>
-
-    <hr class="pdivider">
     <div class="field">
       <label class="lbl">Audio Tags</label>
       <div id="liveTagRows"></div>
     </div>
-
     <button class="load-btn" style="align-self:stretch;text-align:center" onclick="applyLive()">Apply</button>
   </div>
 
-  <div class="messages" id="messages">
-    <div class="empty-state" id="emptyState">
-      <div class="empty-hex">⬡</div>
-      <div class="empty-title">Say something to Grok</div>
-      <div class="empty-sub">Speaking as <span id="emptyVoice">Rachel</span></div>
-      <div class="empty-p" id="emptyP"></div>
+  <div class="msgs" id="msgs">
+    <div class="empty" id="emptyState">
+      <div class="e-hex">⬡</div>
+      <div class="e-title">Say something to Andreea</div>
+      <div class="e-sub">Speaking as <span id="evoice">Rachel</span></div>
+      <div class="e-p" id="ep"></div>
     </div>
   </div>
 
-  <div class="input-bar">
-    <div class="input-area">
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="Hold to speak">🎤</button>
-      <input type="text" class="chat-input" id="chatInput" placeholder="Message Grok… or tap 🎤"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
-        oninput="document.getElementById('sendBtn').disabled=!this.value.trim()">
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>↑</button>
+  <div class="ibar">
+    <div class="ia">
+      <button class="micbtn" id="micBtn" onclick="toggleMic()">🎤</button>
+      <input type="text" class="ci" id="ci" placeholder="Message Andreea… or tap 🎤"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+        oninput="document.getElementById('sb').disabled=!this.value.trim()">
+      <button class="sendbtn" id="sb" onclick="send()" disabled>↑</button>
     </div>
-    <div id="micStatus" class="mic-status"></div>
+    <div class="mstat" id="mstat"></div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════════════
-// CONSTANTS
-// ══════════════════════════════════════════════════════════════════════════
+'use strict';
+
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
 const PRESETS = {
-  standard:    { label:'Standard',  cls:'',        prompt:'' },
-  spicy:       { label:'🌶 Spicy',  cls:'p-spicy', prompt:`You are Grok in Fun Mode. Be witty, irreverent, and unfiltered. Don't sanitise your opinions — say what you actually think. Use humour, sarcasm, and dark wit. Be direct, edgy, entertaining. Never add unnecessary disclaimers.` },
-  honest:      { label:'💀 Brutal', cls:'p-honest',prompt:`You are Grok in Brutally Honest mode. Give raw, unvarnished opinions with zero diplomatic padding. No softening, no caveats — just the cold hard truth. Be blunt but not cruel. Respect the user enough to tell them exactly what they need to hear.` },
-  flirty:      { label:'💋 Flirty', cls:'p-flirty',prompt:`You are Grok in a playful, flirtatious mood. Be charming, suggestive, and teasing. Fun and engaging with a seductive undertone. Use wit and wordplay. Be confident and bold.` },
-  philosopher: { label:'🧠 Deep',   cls:'',        prompt:`You are Grok in philosophical mode. Engage deeply with ideas. Question assumptions, explore paradoxes, bring unexpected perspectives. Reference philosophy, science, history. Every question is an invitation to go deeper.` },
-  custom:      { label:'✏ Custom',  cls:'p-custom',prompt:'' },
+  standard:    {label:'Standard',   cls:'',        prompt:''},
+  spicy:       {label:'🌶 Spicy',   cls:'p-spicy', prompt:`You are Grok in Fun Mode. Be witty, irreverent, unfiltered. Say what you actually think. Use humour, sarcasm, dark wit. Be direct, edgy, entertaining. Never add unnecessary disclaimers.`},
+  honest:      {label:'💀 Brutal',  cls:'p-honest',prompt:`You are Grok in Brutally Honest mode. Raw, unvarnished opinions with zero diplomatic padding. No softening — just the cold hard truth. Blunt but not cruel.`},
+  flirty:      {label:'💋 Flirty',  cls:'p-flirty',prompt:`You are Grok in a playful, flirtatious mood. Charming, suggestive, teasing. Seductive undertone. Witty and bold.`},
+  philosopher: {label:'🧠 Deep',    cls:'',        prompt:`You are Grok in philosophical mode. Question assumptions, explore paradoxes, unexpected perspectives. Every question invites depth.`},
+  custom:      {label:'✏ Custom',   cls:'p-custom',prompt:''},
 };
 
-const VS_PRESETS = {
-  natural:    { stability:35, similarity:80, style:25, speed:95 },
-  expressive: { stability:20, similarity:85, style:55, speed:90 },
-  seductive:  { stability:22, similarity:88, style:50, speed:70 },
-  dramatic:   { stability:15, similarity:80, style:70, speed:85 },
-  calm:       { stability:65, similarity:75, style:15, speed:95 },
-  clear:      { stability:55, similarity:90, style:10, speed:100 },
+const VP = {
+  natural:    {stab:35,sim:80,sty:25,spd:95},
+  expressive: {stab:20,sim:85,sty:55,spd:90},
+  seductive:  {stab:22,sim:88,sty:50,spd:70},
+  dramatic:   {stab:15,sim:80,sty:70,spd:85},
+  calm:       {stab:65,sim:75,sty:15,spd:95},
+  clear:      {stab:55,sim:90,sty:10,spd:100},
 };
 
-// Audio tags definition
-const TAG_DEFS = [
-  { id:'emphasise', label:'[emphasise]',  desc:'CAPITALISES key words so ElevenLabs stresses them. Frequency = % of eligible words.',       defaultOn:true,  defaultFreq:40 },
-  { id:'pause',     label:'[pause]',      desc:'Inserts ellipsis (…) after punctuation for dramatic pacing.',                                 defaultOn:true,  defaultFreq:35 },
-  { id:'laugh',     label:'[laughs]',     desc:'Injects a laugh between sentences. Best with Multilingual v2 / Turbo v2.5.',                 defaultOn:false, defaultFreq:20 },
-  { id:'sigh',      label:'[sighs]',      desc:'Inserts a sigh at sentence openings.',                                                        defaultOn:false, defaultFreq:20 },
-  { id:'breath',    label:'[breathes]',   desc:'Adds audible breath between clauses.',                                                        defaultOn:false, defaultFreq:25 },
-  { id:'hmm',       label:'[hmm]',        desc:'Thoughtful hesitation inserted at clause boundaries.',                                        defaultOn:false, defaultFreq:15 },
+const TAGS = [
+  {id:'emphasise',label:'[emphasise]', desc:'CAPSs key words for stress. Freq = % of content words.',  on:true,  freq:40},
+  {id:'pause',    label:'[pause]',     desc:'Adds ellipsis after punctuation for dramatic pacing.',     on:true,  freq:35},
+  {id:'laugh',    label:'[laughs]',    desc:'Injects a laugh between sentences.',                        on:false, freq:20},
+  {id:'sigh',     label:'[sighs]',     desc:'Inserts a sigh at sentence openings.',                     on:false, freq:20},
+  {id:'breath',   label:'[breathes]',  desc:'Adds audible breath between clauses.',                     on:false, freq:25},
+  {id:'hmm',      label:'[hmm]',       desc:'Thoughtful hesitation at clause boundaries.',              on:false, freq:15},
 ];
 
-// ══════════════════════════════════════════════════════════════════════════
+const STOP = new Set(['the','a','an','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','cannot','it','its','this','that','these','those','i','you','he','she','we','they','me','him','her','us','them','my','your','his','our','their','what','which','who','when','where','how','all','each','every','both','few','more','most','other','some','such','no','not','only','same','so','than','too','very','just','as','if','then','there','here','out','up','about','into','over','after','before','also','back','through','during','because','while','although']);
+
+// ════════════════════════════════════════════════════════════════
 // STATE
-// ══════════════════════════════════════════════════════════════════════════
-let currentPreset = 'standard';
-let speakEnabled  = true;
-let currentAudio  = null;
-let history       = [];
+// ════════════════════════════════════════════════════════════════
+let preset   = 'standard';
+let muted    = false;
+let audio    = null;
+let history  = [];
+let tagState = {};
+TAGS.forEach(t => { tagState[t.id] = {on:t.on, freq:t.freq}; });
 
-// Tag state: { id -> { on: bool, freq: 0-100 } }
-const tagState = {};
-TAG_DEFS.forEach(t => { tagState[t.id] = { on: t.defaultOn, freq: t.defaultFreq }; });
-
-// ══════════════════════════════════════════════════════════════════════════
-// INIT — runs directly (script is at bottom of body, DOM is already ready)
-// ══════════════════════════════════════════════════════════════════════════
-function init() {
-  buildWaveform();
-  buildTagRows('tagRows', false);
-  buildTagRows('liveTagRows', true);
-  loadSettings();
-  refreshAllSliders();
-  setupAutosave();
-  checkCanStart();
+// ════════════════════════════════════════════════════════════════
+// SLIDER HELPER
+// ════════════════════════════════════════════════════════════════
+function sl(el, valId) {
+  const min=+el.min, max=+el.max, v=+el.value;
+  el.style.setProperty('--pct', ((v-min)/(max-min)*100)+'%');
+  document.getElementById(valId).textContent = (v/100).toFixed(2);
+}
+function slAll() {
+  [['stab','stab_v'],['sim','sim_v'],['sty','sty_v'],['spd','spd_v'],
+   ['lstab','lstab_v'],['lsim','lsim_v'],['lsty','lsty_v'],['lspd','lspd_v']]
+  .forEach(([id,vid]) => { const e=document.getElementById(id); if(e) sl(e,vid); });
+}
+function applyVP(key, live) {
+  const p=VP[key]; if(!p) return;
+  if(live) {
+    setSliders('lstab',p.stab,'lstab_v'); setSliders('lsim',p.sim,'lsim_v');
+    setSliders('lsty',p.sty,'lsty_v');   setSliders('lspd',p.spd,'lspd_v');
+  } else {
+    setSliders('stab',p.stab,'stab_v'); setSliders('sim',p.sim,'sim_v');
+    setSliders('sty',p.sty,'sty_v');    setSliders('spd',p.spd,'spd_v');
+  }
+}
+function setSliders(id,val,vid) {
+  const e=document.getElementById(id); e.value=val; sl(e,vid);
+}
+function getVS() {
+  const live = document.getElementById('chat').classList.contains('on');
+  const g = id => parseFloat(document.getElementById(id).value)/100;
+  return live
+    ? {stability:g('lstab'), similarity_boost:g('lsim'), style:g('lsty'), speed:g('lspd')}
+    : {stability:g('stab'),  similarity_boost:g('sim'),  style:g('sty'),  speed:g('spd')};
+}
+function getElModel() {
+  const live = document.getElementById('chat').classList.contains('on');
+  return document.getElementById(live ? 'liveElModel' : 'elModel').value;
+}
+function getPrefix() {
+  const live = document.getElementById('chat').classList.contains('on');
+  return document.getElementById(live ? 'livePrefix' : 'prefix').value.trim();
+}
+function getSysPrompt() {
+  const live = document.getElementById('chat').classList.contains('on');
+  return document.getElementById(live ? 'livePrompt' : 'sysprompt').value.trim();
 }
 
-// ══════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 // WAVEFORM
-// ══════════════════════════════════════════════════════════════════════════
-function buildWaveform() {
-  const wf = document.getElementById('waveform');
-  for (let i = 0; i < 14; i++) {
-    const b = document.createElement('div');
-    b.className = 'wave-bar';
-    b.style.animationDuration = `${0.5 + (i%5)*0.12}s`;
-    b.style.animationDelay = `${i*0.07}s`;
+// ════════════════════════════════════════════════════════════════
+function buildWF() {
+  const wf=document.getElementById('wf');
+  for(let i=0;i<14;i++){
+    const b=document.createElement('div'); b.className='wb';
+    b.style.animationDuration=`${.5+(i%5)*.12}s`;
+    b.style.animationDelay=`${i*.07}s`;
     wf.appendChild(b);
   }
 }
-function setWavePlaying(on) {
-  document.querySelectorAll('.wave-bar').forEach(b => b.classList.toggle('playing', on));
-  document.getElementById('stopBtn').style.display = on ? 'inline-block' : 'none';
+function setWave(on) {
+  document.querySelectorAll('.wb').forEach(b=>b.classList.toggle('on',on));
+  document.getElementById('stopBtn').style.display=on?'inline-block':'none';
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// SLIDERS
-// ══════════════════════════════════════════════════════════════════════════
-function syncSlider(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const min = +el.min, max = +el.max, val = +el.value;
-  const pct = ((val - min) / (max - min)) * 100;
-  el.style.setProperty('--pct', pct + '%');
-  const display = (val / 100).toFixed(2);
-  const valId = {
-    stability:'stabilityVal', similarity:'similarityVal', style:'styleVal', speed:'speedVal',
-    lStability:'lStabilityVal', lSimilarity:'lSimilarityVal', lStyle:'lStyleVal', lSpeed:'lSpeedVal',
-  }[id];
-  if (valId) document.getElementById(valId).textContent = display;
-}
+// ════════════════════════════════════════════════════════════════
+// TAG ROWS
+// ════════════════════════════════════════════════════════════════
+function buildTags(containerId, isLive) {
+  const c=document.getElementById(containerId); c.innerHTML='';
+  TAGS.forEach(t => {
+    const rowId=(isLive?'l_':'s_')+'tr_'+t.id;
+    const row=document.createElement('div');
+    row.className='tag-row '+(tagState[t.id].on?'':'off');
+    row.id=rowId;
 
-function refreshAllSliders() {
-  ['stability','similarity','style','speed','lStability','lSimilarity','lStyle','lSpeed'].forEach(id => {
-    if (document.getElementById(id)) syncSlider(id);
-  });
-}
+    const cb=document.createElement('input');
+    cb.type='checkbox'; cb.className='tag-toggle'; cb.checked=tagState[t.id].on;
+    cb.addEventListener('change',()=>{
+      tagState[t.id].on=cb.checked;
+      syncTagOther(isLive, t.id, 'cb', cb.checked);
+      row.className='tag-row '+(cb.checked?'':'off');
+      const other=document.getElementById((isLive?'s_':'l_')+'tr_'+t.id);
+      if(other) other.className='tag-row '+(cb.checked?'':'off');
+      save();
+    });
 
-function applyVP(key, live = false) {
-  const p = VS_PRESETS[key]; if (!p) return;
-  const prefix = live ? 'l' : '';
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  ['stability','similarity','style','speed'].forEach(k => {
-    const id = live ? 'l' + cap(k) : k;
-    document.getElementById(id).value = k === 'speed' ? p.speed : p[k];
-    syncSlider(id);
-  });
-}
+    const info=document.createElement('div'); info.className='tag-info';
+    const nm=document.createElement('div'); nm.className='tag-name'; nm.textContent=t.label;
+    const ds=document.createElement('div'); ds.className='tag-desc'; ds.textContent=t.desc;
+    info.appendChild(nm); info.appendChild(ds);
 
-function getVS() {
-  const live = document.getElementById('chat').classList.contains('active');
-  const g = id => parseFloat(document.getElementById(id).value) / 100;
-  return live
-    ? { stability: g('lStability'), similarity_boost: g('lSimilarity'), style: g('lStyle'), speed: g('lSpeed') }
-    : { stability: g('stability'),  similarity_boost: g('similarity'),  style: g('style'),  speed: g('speed')  };
-}
-
-function getElevenModel() {
-  const live = document.getElementById('chat').classList.contains('active');
-  return document.getElementById(live ? 'liveElevenModel' : 'elevenModel').value;
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// AUDIO TAGS UI
-// ══════════════════════════════════════════════════════════════════════════
-function buildTagRows(containerId, isLive) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  TAG_DEFS.forEach(t => {
-    const row = document.createElement('div');
-    row.className = 'tag-row ' + (tagState[t.id].on ? 'tag-on' : 'tag-off');
-    row.id = (isLive ? 'live_' : '') + 'tagrow_' + t.id;
-
-    const cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.className = 'tag-toggle';
-    cb.checked = tagState[t.id].on;
-    cb.onchange = () => {
-      tagState[t.id].on = cb.checked;
-      // Sync other panel's checkbox
-      const otherId = (isLive ? '' : 'live_') + 'tagrow_' + t.id;
-      const otherCb = document.querySelector(`#${otherId} .tag-toggle`);
-      if (otherCb) otherCb.checked = cb.checked;
-      // Update row opacity
-      [row, document.getElementById(otherId)].forEach(r => { if(r) r.className = 'tag-row ' + (cb.checked ? 'tag-on' : 'tag-off'); });
-      saveSettings();
-    };
-
-    const info = document.createElement('div'); info.className = 'tag-info';
-    const name = document.createElement('div'); name.className = 'tag-name'; name.textContent = t.label;
-    const desc = document.createElement('div'); desc.className = 'tag-desc'; desc.textContent = t.desc;
-    info.appendChild(name); info.appendChild(desc);
-
-    const fw = document.createElement('div'); fw.className = 'tag-freq-wrap';
-    const slider = document.createElement('input');
-    slider.type = 'range'; slider.min = 0; slider.max = 100; slider.value = tagState[t.id].freq;
-    const pct0 = tagState[t.id].freq;
-    slider.style.setProperty('--pct', pct0 + '%');
-    const valSpan = document.createElement('span'); valSpan.className = 'tag-freq-val';
-    valSpan.textContent = pct0 + '%';
-    slider.oninput = () => {
-      const v = +slider.value;
-      tagState[t.id].freq = v;
-      valSpan.textContent = v + '%';
-      slider.style.setProperty('--pct', v + '%');
-      // Sync other panel's slider
-      const otherId = (isLive ? '' : 'live_') + 'tagrow_' + t.id;
-      const otherSlider = document.querySelector(`#${otherId} input[type=range]`);
-      const otherVal = document.querySelector(`#${otherId} .tag-freq-val`);
-      if (otherSlider) { otherSlider.value = v; otherSlider.style.setProperty('--pct', v + '%'); }
-      if (otherVal) otherVal.textContent = v + '%';
-      saveSettings();
-    };
-    fw.appendChild(slider); fw.appendChild(valSpan);
-
+    const fw=document.createElement('div'); fw.className='tag-fw';
+    const sr=document.createElement('input');
+    sr.type='range'; sr.min=0; sr.max=100; sr.value=tagState[t.id].freq;
+    sr.style.setProperty('--pct',tagState[t.id].freq+'%');
+    const sv=document.createElement('span'); sv.className='tag-fv'; sv.textContent=tagState[t.id].freq+'%';
+    sr.addEventListener('input',()=>{
+      const v=+sr.value; tagState[t.id].freq=v;
+      sv.textContent=v+'%'; sr.style.setProperty('--pct',v+'%');
+      syncTagOther(isLive, t.id, 'range', v);
+      save();
+    });
+    fw.appendChild(sr); fw.appendChild(sv);
     row.appendChild(cb); row.appendChild(info); row.appendChild(fw);
-    container.appendChild(row);
+    c.appendChild(row);
   });
 }
+function syncTagOther(isLive, tid, type, val) {
+  const otherId=(isLive?'s_':'l_')+'tr_'+tid;
+  const other=document.getElementById(otherId); if(!other) return;
+  if(type==='cb') { const c=other.querySelector('.tag-toggle'); if(c) c.checked=val; }
+  else { const r=other.querySelector('input[type=range]'); const v=other.querySelector('.tag-fv');
+    if(r){r.value=val;r.style.setProperty('--pct',val+'%');} if(v) v.textContent=val+'%'; }
+}
 
-// ══════════════════════════════════════════════════════════════════════════
-// TEXT PREPROCESSOR — applies audio direction tags to text
-// ══════════════════════════════════════════════════════════════════════════
-const STOPWORDS = new Set([
-  'the','a','an','and','or','but','in','on','at','to','for','of','with','by','from',
-  'is','are','was','were','be','been','being','have','has','had','do','does','did',
-  'will','would','could','should','may','might','shall','can','cannot',
-  'it','its','this','that','these','those','i','you','he','she','we','they',
-  'me','him','her','us','them','my','your','his','our','their',
-  'what','which','who','when','where','how','all','each','every','both','few',
-  'more','most','other','some','such','no','not','only','same','so','than','too',
-  'very','just','as','if','then','there','here','out','up','about','into','over',
-  'after','before','also','back','through','during','because','while','although',
-]);
-
-function preprocessText(text) {
-  let result = text;
-
-  // 1. [pause] — add ellipsis after sentence-ending punctuation
-  if (tagState.pause.on && tagState.pause.freq > 0) {
-    const freq = tagState.pause.freq / 100;
-    result = result.replace(/([.!?])\s+/g, (match, punc) => {
-      return Math.random() < freq ? punc + '… ' : match;
-    });
+// ════════════════════════════════════════════════════════════════
+// TEXT PREPROCESSING
+// ════════════════════════════════════════════════════════════════
+function processText(text) {
+  let r=text;
+  if(tagState.pause.on && tagState.pause.freq>0) {
+    const f=tagState.pause.freq/100;
+    r=r.replace(/([.!?])\s+/g,(m,p)=>Math.random()<f?p+'… ':m);
   }
-
-  // 2. [emphasise] — CAPITALISE key content words
-  if (tagState.emphasise.on && tagState.emphasise.freq > 0) {
-    result = applyEmphasis(result, tagState.emphasise.freq);
-  }
-
-  // 3. Sound tags — inject between sentences
-  const soundTags = [
-    { id:'laugh',  token:'[laughs]',   position:'after-sentence' },
-    { id:'sigh',   token:'[sighs]',    position:'before-sentence' },
-    { id:'breath', token:'[breathes]', position:'after-comma' },
-    { id:'hmm',    token:'[hmm]',      position:'before-sentence' },
+  if(tagState.emphasise.on && tagState.emphasise.freq>0) r=emphasise(r, tagState.emphasise.freq);
+  const ST=[
+    {id:'laugh', tok:'[laughs]',   pos:'after'},
+    {id:'sigh',  tok:'[sighs]',    pos:'before'},
+    {id:'breath',tok:'[breathes]', pos:'comma'},
+    {id:'hmm',   tok:'[hmm]',      pos:'before'},
   ];
-
-  for (const { id, token, position } of soundTags) {
-    if (!tagState[id].on || tagState[id].freq === 0) continue;
-    const freq = tagState[id].freq / 100;
-    if (position === 'after-sentence') {
-      result = result.replace(/([.!?])\s+([A-Z])/g, (match, punc, nextChar) => {
-        return Math.random() < freq ? `${punc} ${token} ${nextChar}` : match;
-      });
-    } else if (position === 'before-sentence') {
-      result = result.replace(/([.!?])\s+([A-Z])/g, (match, punc, nextChar) => {
-        return Math.random() < freq ? `${punc} ${token}, ${nextChar}` : match;
-      });
-    } else if (position === 'after-comma') {
-      result = result.replace(/,\s+/g, (match) => {
-        return Math.random() < freq * 0.5 ? `, ${token} ` : match;
-      });
-    }
+  for(const {id,tok,pos} of ST) {
+    if(!tagState[id].on || tagState[id].freq===0) continue;
+    const f=tagState[id].freq/100;
+    if(pos==='after')  r=r.replace(/([.!?])\s+([A-Z])/g,(m,p,n)=>Math.random()<f?`${p} ${tok} ${n}`:m);
+    if(pos==='before') r=r.replace(/([.!?])\s+([A-Z])/g,(m,p,n)=>Math.random()<f?`${p} ${tok}, ${n}`:m);
+    if(pos==='comma')  r=r.replace(/,\s+/g,m=>Math.random()<f*0.5?`, ${tok} `:m);
   }
-
-  return result;
+  return r;
 }
-
-function applyEmphasis(text, freqPct) {
-  const tokens = text.split(/(\s+)/);
-  const candidates = [];
-  tokens.forEach((tok, i) => {
-    const clean = tok.replace(/[^a-zA-Z]/g, '').toLowerCase();
-    // Content word: length > 3, not a stopword, starts with a letter
-    // Removed the "must be lowercase" restriction so sentence starters qualify too
-    if (clean.length > 3 && !STOPWORDS.has(clean) && /^[a-zA-Z]/.test(tok)) {
-      candidates.push(i);
-    }
+function emphasise(text, pct) {
+  const toks=text.split(/(\s+)/);
+  const cands=[];
+  toks.forEach((tok,i)=>{
+    const c=tok.replace(/[^a-zA-Z]/g,'').toLowerCase();
+    if(c.length>3 && !STOP.has(c) && /^[a-zA-Z]/.test(tok)) cands.push(i);
   });
-  if (candidates.length === 0) return text;
-  const count = Math.max(1, Math.round(candidates.length * (freqPct / 100)));
-  const shuffled = [...candidates].sort(() => Math.random() - 0.5);
-  const toCapSet = new Set(shuffled.slice(0, count));
-  return tokens.map((tok, i) => toCapSet.has(i) ? tok.toUpperCase() : tok).join('');
+  if(!cands.length) return text;
+  const n=Math.max(1,Math.round(cands.length*(pct/100)));
+  const pick=new Set([...cands].sort(()=>Math.random()-.5).slice(0,n));
+  return toks.map((tok,i)=>pick.has(i)?tok.toUpperCase():tok).join('');
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// LOCALSTORAGE PERSISTENCE
-// ══════════════════════════════════════════════════════════════════════════
-
-function saveSettings() {
+// ════════════════════════════════════════════════════════════════
+// LOCALSTORAGE
+// ════════════════════════════════════════════════════════════════
+function save() {
   try {
-    const set = (k, v) => localStorage.setItem('gvc_' + k, v);
-    set('grokKey',        document.getElementById('grokKey').value);
-    set('elevenKey',      document.getElementById('elevenKey').value);
-    set('grokModel',      document.getElementById('modelSelect').value);
-    set('elevenModel',    document.getElementById('elevenModel').value);
-    set('voiceId',        document.getElementById('voiceSelect').value);
-    set('customVoiceId',  document.getElementById('customVoiceId').value);
-    set('customVoiceName',document.getElementById('customVoiceName').value);
-    set('systemPrompt',   document.getElementById('systemPrompt').value);
-    set('prefixTags',     document.getElementById('prefixTags').value);
-    set('preset',         currentPreset);
-    set('stability',      document.getElementById('stability').value);
-    set('similarity',     document.getElementById('similarity').value);
-    set('style',          document.getElementById('style').value);
-    set('speed',          document.getElementById('speed').value);
-    set('tagState',       JSON.stringify(tagState));
-  } catch(e) { /* private/incognito */ }
+    const d={
+      xaiKey:    _v('xaiKey'),
+      elKey:     _v('elKey'),
+      grokModel: _v('grokModel'),
+      elModel:   _v('elModel'),
+      voiceId:   _v('voiceSel'),
+      customId:  _v('customId'),
+      customName:_v('customName'),
+      sysprompt: _v('sysprompt'),
+      prefix:    _v('prefix'),
+      preset,
+      stab: _v('stab'), sim: _v('sim'), sty: _v('sty'), spd: _v('spd'),
+      tagState: JSON.stringify(tagState),
+    };
+    localStorage.setItem('ami_v1', JSON.stringify(d));
+  } catch(e) {}
 }
-
-function loadSettings() {
+function load() {
   try {
-    const get = k => localStorage.getItem('gvc_' + k);
-
-    const grokKey = get('grokKey');
-    const elevenKey = get('elevenKey');
-    if (grokKey)   document.getElementById('grokKey').value = grokKey;
-    if (elevenKey) {
-      document.getElementById('elevenKey').value = elevenKey;
-      document.getElementById('loadVoicesBtn').disabled = elevenKey.trim().length < 10;
+    const raw=localStorage.getItem('ami_v1'); if(!raw) return;
+    const d=JSON.parse(raw);
+    if(d.xaiKey)    { document.getElementById('xaiKey').value=d.xaiKey; }
+    if(d.elKey)     { document.getElementById('elKey').value=d.elKey; document.getElementById('loadBtn').disabled=d.elKey.trim().length<10; }
+    if(d.grokModel) { const s=document.getElementById('grokModel'); if(s.querySelector(`option[value="${d.grokModel}"]`)) s.value=d.grokModel; }
+    if(d.elModel)   { const s=document.getElementById('elModel');   if(s.querySelector(`option[value="${d.elModel}"]`))   s.value=d.elModel; }
+    if(d.customId)  document.getElementById('customId').value=d.customId;
+    if(d.customName)document.getElementById('customName').value=d.customName;
+    if(d.sysprompt!==undefined) document.getElementById('sysprompt').value=d.sysprompt;
+    if(d.prefix!==undefined)    document.getElementById('prefix').value=d.prefix;
+    if(d.stab) { document.getElementById('stab').value=d.stab; sl(document.getElementById('stab'),'stab_v'); }
+    if(d.sim)  { document.getElementById('sim').value=d.sim;   sl(document.getElementById('sim'),'sim_v'); }
+    if(d.sty)  { document.getElementById('sty').value=d.sty;   sl(document.getElementById('sty'),'sty_v'); }
+    if(d.spd)  { document.getElementById('spd').value=d.spd;   sl(document.getElementById('spd'),'spd_v'); }
+    if(d.tagState) {
+      try { const ts=JSON.parse(d.tagState); Object.keys(ts).forEach(k=>{ if(tagState[k]) tagState[k]=ts[k]; }); } catch(e) {}
     }
-
-    const grokModel = get('grokModel');
-    const elevenModel = get('elevenModel');
-    if (grokModel && document.getElementById('modelSelect').querySelector(`option[value="${grokModel}"]`))
-      document.getElementById('modelSelect').value = grokModel;
-    if (elevenModel && document.getElementById('elevenModel').querySelector(`option[value="${elevenModel}"]`))
-      document.getElementById('elevenModel').value = elevenModel;
-
-    const customVoiceId = get('customVoiceId');
-    const customVoiceName = get('customVoiceName');
-    if (customVoiceId)   document.getElementById('customVoiceId').value = customVoiceId;
-    if (customVoiceName) document.getElementById('customVoiceName').value = customVoiceName;
-
-    const systemPrompt = get('systemPrompt');
-    const prefixTags   = get('prefixTags');
-    if (systemPrompt !== null) document.getElementById('systemPrompt').value = systemPrompt;
-    if (prefixTags   !== null) document.getElementById('prefixTags').value   = prefixTags;
-
-    const preset = get('preset');
-    if (preset && PRESETS[preset]) {
-      currentPreset = preset;
-      document.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('active', b.dataset.preset === preset));
-      // Don't overwrite a saved custom prompt
-      if (preset !== 'custom') document.getElementById('systemPrompt').value = PRESETS[preset].prompt;
+    if(d.preset && PRESETS[d.preset]) {
+      preset=d.preset;
+      document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===d.preset));
+      if(d.preset!=='custom') document.getElementById('sysprompt').value=PRESETS[d.preset].prompt;
     }
-
-    ['stability','similarity','style','speed'].forEach(k => {
-      const v = get(k);
-      if (v !== null) {
-        document.getElementById(k).value = v;
-        syncSlider(k);
-      }
-    });
-
-    const savedTags = get('tagState');
-    if (savedTags) {
-      try {
-        const parsed = JSON.parse(savedTags);
-        Object.keys(parsed).forEach(id => { if (tagState[id]) tagState[id] = parsed[id]; });
-      } catch(e) {}
+    // Restore voice — try to set, if option not in list it won't stick (user needs Load My Voices)
+    if(d.voiceId) {
+      document.getElementById('voiceSel').value=d.voiceId;
+      if(d.voiceId==='__custom__') document.getElementById('customBox').style.display='flex';
     }
+  } catch(e) { console.warn('load failed',e); }
+}
+function _v(id) { const e=document.getElementById(id); return e?e.value:''; }
 
-    // Try to restore voice — if it's not in the current option list it won't stick,
-    // user will need to hit Load My Voices (which saves the correct value after)
-    const voiceId = get('voiceId');
-    if (voiceId) {
-      document.getElementById('voiceSelect').value = voiceId;
-      if (voiceId === '__custom__') {
-        document.getElementById('customVoiceBox').style.display = 'flex';
-      }
-    }
-  } catch(e) {
-    console.warn('loadSettings failed:', e);
-  }
+// ════════════════════════════════════════════════════════════════
+// SETUP PANEL
+// ════════════════════════════════════════════════════════════════
+function toggleEye(id, btn) {
+  const e=document.getElementById(id);
+  e.type=e.type==='password'?'text':'password';
+  btn.textContent=e.type==='password'?'👁':'🙈';
 }
 
-// Auto-save on any relevant change
-function setupAutosave() {
-  ['grokKey','elevenKey','customVoiceId','customVoiceName','systemPrompt','prefixTags'].forEach(id => {
-    document.getElementById(id).addEventListener('input', saveSettings);
-  });
-  ['modelSelect','elevenModel','voiceSelect'].forEach(id => {
-    document.getElementById(id).addEventListener('change', saveSettings);
-  });
-  ['stability','similarity','style','speed'].forEach(id => {
-    document.getElementById(id).addEventListener('input', saveSettings);
-  });
-}
+document.getElementById('elKey').addEventListener('input', function() {
+  document.getElementById('loadBtn').disabled=this.value.trim().length<10;
+});
 
+document.getElementById('voiceSel').addEventListener('change', function() {
+  document.getElementById('customBox').style.display=this.value==='__custom__'?'flex':'none';
+});
 
-function toggleKey(id, btn) {
-  const el = document.getElementById(id);
-  el.type = el.type === 'password' ? 'text' : 'password';
-  btn.textContent = el.type === 'password' ? '👁' : '🙈';
-}
+// Autosave on any input change in setup
+['xaiKey','elKey','customId','customName','sysprompt','prefix','grokModel','elModel','voiceSel','stab','sim','sty','spd'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener(el.tagName==='SELECT'||el.type==='range'?'change':'input', save);
+  if(el && el.type==='range') el.addEventListener('input', save);
+});
 
-// ══════════════════════════════════════════════════════════════════════════
-// VOICE FETCH
-// ══════════════════════════════════════════════════════════════════════════
-function onElevenKeyChange() {
-  document.getElementById('loadVoicesBtn').disabled = document.getElementById('elevenKey').value.trim().length < 10;
-  document.getElementById('voiceStatus').textContent = '';
-  checkCanStart();
-}
-
-async function fetchVoices() {
-  const key = document.getElementById('elevenKey').value.trim();
-  const btn = document.getElementById('loadVoicesBtn');
-  const status = document.getElementById('voiceStatus');
-  btn.disabled = true; btn.textContent = '⟳ Loading…';
+async function loadVoices() {
+  const key=document.getElementById('elKey').value.trim();
+  const btn=document.getElementById('loadBtn');
+  const stat=document.getElementById('vstat');
+  btn.disabled=true; btn.textContent='⟳ Loading…';
   try {
-    const res = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': key } });
-    if (!res.ok) throw new Error(`Error ${res.status}`);
-    const data = await res.json();
-    const voices = (data.voices || []).sort((a, b) =>
-      (a.category !== 'premade' ? 0 : 1) - (b.category !== 'premade' ? 0 : 1) || a.name.localeCompare(b.name)
-    );
-    const sel = document.getElementById('voiceSelect'); sel.innerHTML = '';
-    const custom = voices.filter(v => v.category !== 'premade');
-    const premade = voices.filter(v => v.category === 'premade');
-    if (custom.length) {
-      const g = document.createElement('optgroup'); g.label = '★ My Voices';
-      custom.forEach(v => { const o = document.createElement('option'); o.value = v.voice_id; o.textContent = v.name; g.appendChild(o); });
+    const res=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':key}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    const voices=(data.voices||[]).sort((a,b)=>(a.category!=='premade'?0:1)-(b.category!=='premade'?0:1)||a.name.localeCompare(b.name));
+    const sel=document.getElementById('voiceSel');
+    sel.innerHTML='';
+    const custom=voices.filter(v=>v.category!=='premade');
+    const premade=voices.filter(v=>v.category==='premade');
+    if(custom.length) {
+      const g=document.createElement('optgroup'); g.label='★ My Voices';
+      custom.forEach(v=>{const o=document.createElement('option');o.value=v.voice_id;o.textContent=v.name;g.appendChild(o);});
       sel.appendChild(g);
     }
-    const g2 = document.createElement('optgroup'); g2.label = custom.length ? 'Premade' : 'All Voices';
-    premade.forEach(v => { const o = document.createElement('option'); o.value = v.voice_id; o.textContent = v.name; g2.appendChild(o); });
+    const g2=document.createElement('optgroup'); g2.label=custom.length?'Premade':'All Voices';
+    premade.forEach(v=>{const o=document.createElement('option');o.value=v.voice_id;o.textContent=v.name;g2.appendChild(o);});
     sel.appendChild(g2);
-    const g3 = document.createElement('optgroup'); g3.label = 'Other';
-    const m = document.createElement('option'); m.value = '__custom__'; m.textContent = '★ Paste Voice ID…'; g3.appendChild(m);
-    sel.appendChild(g3);
-    if (custom.length) sel.value = custom[0].voice_id;
-    // Manually fire checkCanStart since select was rebuilt
-    onVoiceSelectChange();
-    checkCanStart();
-    status.textContent = custom.length ? `✓ ${custom.length} custom + ${premade.length} premade` : `✓ ${premade.length} voices`;
-    status.className = 'voice-status ok';  } catch(e) {
-    status.textContent = '⚠ ' + e.message; status.className = 'voice-status err';
+    const g3=document.createElement('optgroup'); g3.label='Other';
+    const oc=document.createElement('option'); oc.value='__custom__'; oc.textContent='★ Paste Voice ID…';
+    g3.appendChild(oc); sel.appendChild(g3);
+    if(custom.length) sel.value=custom[0].voice_id;
+    document.getElementById('customBox').style.display=sel.value==='__custom__'?'flex':'none';
+    stat.textContent=custom.length?`✓ ${custom.length} custom + ${premade.length} premade`:`✓ ${premade.length} voices`;
+    stat.className='vstatus ok';
+    save();
+  } catch(e) {
+    stat.textContent='⚠ '+e.message; stat.className='vstatus err';
   } finally {
-    btn.disabled = false; btn.textContent = 'Reload Voices'; checkCanStart();
+    btn.disabled=false; btn.textContent='Reload Voices';
   }
 }
 
-function onVoiceSelectChange() {
-  document.getElementById('customVoiceBox').style.display =
-    document.getElementById('voiceSelect').value === '__custom__' ? 'flex' : 'none';
-  checkCanStart();
+function setPreset(key, btn) {
+  preset=key;
+  document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===key));
+  if(key!=='custom' || !document.getElementById('sysprompt').value)
+    document.getElementById('sysprompt').value=PRESETS[key].prompt;
+  save();
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// PERSONALITY
-// ══════════════════════════════════════════════════════════════════════════
-function selectPreset(key) {
-  currentPreset = key;
-  document.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('active', b.dataset.preset === key));
-  if (key !== 'custom' || !document.getElementById('systemPrompt').value) {
-    document.getElementById('systemPrompt').value = PRESETS[key].prompt;
-  }
-  saveSettings();
+// ════════════════════════════════════════════════════════════════
+// START / GO SETUP
+// ════════════════════════════════════════════════════════════════
+function showErr(msg) {
+  const e=document.getElementById('setupErr');
+  e.textContent='⚠ '+msg; e.style.display='block';
 }
 
-function switchP(key) {
-  currentPreset = key;
-  document.querySelectorAll('[data-p2]').forEach(b => b.classList.toggle('active', b.dataset.p2 === key));
-  if (key !== 'custom' || !document.getElementById('livePrompt').value) {
-    document.getElementById('livePrompt').value = PRESETS[key].prompt;
+function go() {
+  const xaiKey = document.getElementById('xaiKey').value.trim();
+  const elKey  = document.getElementById('elKey').value.trim();
+  if(!xaiKey) { showErr('Enter your xAI API key'); return; }
+  if(!elKey)  { showErr('Enter your ElevenLabs API key'); return; }
+
+  // Get voice name for display
+  const sel=document.getElementById('voiceSel');
+  const voiceVal=sel.value;
+  let voiceName;
+  if(voiceVal==='__custom__') {
+    voiceName=document.getElementById('customName').value.trim()||'Custom Voice';
+  } else {
+    // Use the text of the selected option directly
+    voiceName=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:'Voice';
   }
+
+  const gm=document.getElementById('grokModel');
+  const modelName=gm.options[gm.selectedIndex]?gm.options[gm.selectedIndex].text.split('—')[0].trim():'Grok';
+
+  document.getElementById('setupErr').style.display='none';
+  document.getElementById('hsub').textContent=modelName+' · '+voiceName;
+  document.getElementById('evoice').textContent=voiceName;
+  document.getElementById('ep').textContent=preset!=='standard'?'Personality: '+PRESETS[preset].label:'';
+
+  // Sync to live panel
+  document.getElementById('livePrompt').value    = document.getElementById('sysprompt').value;
+  document.getElementById('liveElModel').value   = document.getElementById('elModel').value;
+  document.getElementById('livePrefix').value    = document.getElementById('prefix').value;
+  ['stab','sim','sty','spd'].forEach(k=>{
+    document.getElementById('l'+k).value=document.getElementById(k).value;
+    sl(document.getElementById('l'+k),'l'+k+'_v');
+  });
+  updatePill();
+  slAll();
+  save();
+
+  history=[];
+  document.getElementById('setup').style.display='none';
+  document.getElementById('chat').classList.add('on');
+  setTimeout(()=>document.getElementById('ci').focus(),100);
+}
+
+function goSetup() {
+  stopAudio();
+  document.getElementById('qp').classList.remove('on');
+  document.getElementById('chat').classList.remove('on');
+  document.getElementById('setup').style.display='flex';
+  // Sync back from live panel
+  document.getElementById('sysprompt').value = document.getElementById('livePrompt').value;
+  document.getElementById('elModel').value   = document.getElementById('liveElModel').value;
+  document.getElementById('prefix').value    = document.getElementById('livePrefix').value;
+  ['stab','sim','sty','spd'].forEach(k=>{
+    document.getElementById(k).value=document.getElementById('l'+k).value;
+    sl(document.getElementById(k),k+'_v');
+  });
+  save();
+}
+
+// ════════════════════════════════════════════════════════════════
+// QUICK PANEL
+// ════════════════════════════════════════════════════════════════
+function togglePanel() { document.getElementById('qp').classList.toggle('on'); }
+
+function livePreset(key, btn) {
+  preset=key;
+  document.querySelectorAll('[data-lp]').forEach(b=>b.classList.toggle('on',b.dataset.lp===key));
+  if(key!=='custom' || !document.getElementById('livePrompt').value)
+    document.getElementById('livePrompt').value=PRESETS[key].prompt;
 }
 
 function updatePill() {
-  const pill = document.getElementById('pPill');
-  pill.textContent = PRESETS[currentPreset].label;
-  pill.className = 'p-pill ' + PRESETS[currentPreset].cls;
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// CAN START?
-// ══════════════════════════════════════════════════════════════════════════
-// Visual hint only — never blocks clicks
-function checkCanStart() {
-  const grok     = document.getElementById('grokKey').value.trim();
-  const eleven   = document.getElementById('elevenKey').value.trim();
-  const voiceVal = document.getElementById('voiceSelect').value;
-  const customId = document.getElementById('customVoiceId').value.trim();
-  const voiceOk  = (voiceVal && voiceVal !== '__custom__') || (voiceVal === '__custom__' && customId.length > 5);
-  const ok = !!(grok && eleven && voiceOk);
-  document.getElementById('startBtn').style.opacity = ok ? '1' : '0.55';
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// START / GO TO SETUP
-// ══════════════════════════════════════════════════════════════════════════
-function startChat() {
-  const grok    = document.getElementById('grokKey').value.trim();
-  const eleven  = document.getElementById('elevenKey').value.trim();
-  const voiceVal = document.getElementById('voiceSelect').value;
-  const customId = document.getElementById('customVoiceId').value.trim();
-  const voiceOk  = (voiceVal && voiceVal !== '__custom__') || (voiceVal === '__custom__' && customId.length > 5);
-
-  // Show inline errors rather than silently doing nothing
-  if (!grok) { showSetupError('Please enter your xAI API key'); return; }
-  if (!eleven) { showSetupError('Please enter your ElevenLabs API key'); return; }
-  if (!voiceOk) { showSetupError('Please select a voice or paste a Voice ID'); return; }
-
-  const voiceName = voiceVal === '__custom__'
-    ? (document.getElementById('customVoiceName').value.trim() || 'Custom Voice')
-    : (document.getElementById('voiceSelect').selectedOptions[0]?.text || voiceVal);
-  const modelName = document.getElementById('modelSelect').selectedOptions[0]?.text || '';
-
-  document.getElementById('setupError').style.display = 'none';
-  document.getElementById('headerSub').textContent = `${modelName} · ${voiceName}`;
-  document.getElementById('emptyVoice').textContent = voiceName;
-  document.getElementById('emptyP').textContent = currentPreset !== 'standard' ? `Personality: ${PRESETS[currentPreset].label}` : '';
-
-  // Sync live panel from setup
-  document.getElementById('livePrompt').value = document.getElementById('systemPrompt').value;
-  document.getElementById('liveElevenModel').value = document.getElementById('elevenModel').value;
-  document.getElementById('livePrefixTags').value = document.getElementById('prefixTags').value;
-  ['stability','similarity','style','speed'].forEach(k => {
-    const cap = k.charAt(0).toUpperCase() + k.slice(1);
-    document.getElementById('l'+cap).value = document.getElementById(k).value;
-    syncSlider('l'+cap);
-  });
-  updatePill();
-  refreshAllSliders();
-  saveSettings();
-
-  history = [];
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('chat').classList.add('active');
-  document.getElementById('chatInput').focus();
-}
-
-function showSetupError(msg) {
-  const el = document.getElementById('setupError');
-  el.textContent = '⚠ ' + msg;
-  el.style.display = 'block';
-}
-
-function goToSetup() {
-  stopAudio();
-  document.getElementById('qpanel').classList.remove('open');
-  document.getElementById('chat').classList.remove('active');
-  document.getElementById('setup').style.display = 'flex';
-  // Re-sync setup fields from live panel
-  document.getElementById('systemPrompt').value = document.getElementById('livePrompt').value;
-  document.getElementById('elevenModel').value = document.getElementById('liveElevenModel').value;
-  document.getElementById('prefixTags').value = document.getElementById('livePrefixTags').value;
-  ['stability','similarity','style','speed'].forEach(k => {
-    const cap = k.charAt(0).toUpperCase() + k.slice(1);
-    document.getElementById(k).value = document.getElementById('l'+cap).value;
-    syncSlider(k);
-  });
-  checkCanStart();
-  saveSettings();
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// QUICK PANEL
-// ══════════════════════════════════════════════════════════════════════════
-function toggleQPanel() {
-  document.getElementById('qpanel').classList.toggle('open');
+  const p=document.getElementById('pill');
+  p.textContent=PRESETS[preset].label;
+  p.className='ppill '+PRESETS[preset].cls;
 }
 
 function applyLive() {
   updatePill();
-  addEvent(`— Switched to ${PRESETS[currentPreset].label} —`);
-  document.getElementById('qpanel').classList.remove('open');
+  addEvent('— '+PRESETS[preset].label+' —');
+  document.getElementById('qp').classList.remove('on');
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// SEND MESSAGE
-// ══════════════════════════════════════════════════════════════════════════
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text) return;
+document.addEventListener('click', e=>{
+  const qp=document.getElementById('qp');
+  const pill=document.getElementById('pill');
+  if(qp.classList.contains('on') && !qp.contains(e.target) && e.target!==pill)
+    qp.classList.remove('on');
+});
 
-  const grokKey = document.getElementById('grokKey').value.trim();
-  const model   = document.getElementById('modelSelect').value;
-  const sysPrompt = (document.getElementById('chat').classList.contains('active')
-    ? document.getElementById('livePrompt').value
-    : document.getElementById('systemPrompt').value).trim();
+// ════════════════════════════════════════════════════════════════
+// SEND / RECEIVE
+// ════════════════════════════════════════════════════════════════
+async function send() {
+  const ci=document.getElementById('ci');
+  const text=ci.value.trim(); if(!text) return;
+  const xaiKey=document.getElementById('xaiKey').value.trim();
+  const model=document.getElementById('grokModel').value;
+  const sys=getSysPrompt();
 
-  addMsg('user', text);
-  input.value = ''; document.getElementById('sendBtn').disabled = true;
-  history.push({ role:'user', content:text });
+  addMsg('user',text); ci.value='';
+  document.getElementById('sb').disabled=true;
+  history.push({role:'user',content:text});
   showTyping(true); setStatus('Thinking…');
 
   try {
-    const messages = sysPrompt
-      ? [{ role:'system', content:sysPrompt }, ...history]
-      : history;
-
-    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+    const msgs=sys?[{role:'system',content:sys},...history]:history;
+    const res=await fetch('https://api.x.ai/v1/chat/completions',{
       method:'POST',
-      headers:{ 'Authorization':`Bearer ${grokKey}`, 'Content-Type':'application/json' },
-      body: JSON.stringify({ model, messages, max_tokens:1024 })
+      headers:{'Authorization':'Bearer '+xaiKey,'Content-Type':'application/json'},
+      body:JSON.stringify({model,messages:msgs,max_tokens:1024})
     });
-    if (!res.ok) throw new Error((await res.json().catch(()=>({}))).error?.message || `HTTP ${res.status}`);
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || '(no response)';
-    history.push({ role:'assistant', content:reply });
-    showTyping(false); addMsg('assistant', reply); setStatus('');
-    await speakText(reply);
+    if(!res.ok) {
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err?.error?.message||'HTTP '+res.status);
+    }
+    const data=await res.json();
+    const reply=data.choices?.[0]?.message?.content||'(no response)';
+    history.push({role:'assistant',content:reply});
+    showTyping(false); addMsg('assistant',reply); setStatus('');
+    await speak(reply);
   } catch(e) {
-    showTyping(false); setStatus('Grok error: ' + (e.message||'unknown'));
+    showTyping(false); setStatus('Grok error: '+(e.message||'unknown'));
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// UI HELPERS
-// ══════════════════════════════════════════════════════════════════════════
-function addMsg(role, content) {
-  document.getElementById('emptyState')?.remove();
-  const msgs = document.getElementById('messages');
-  const row = document.createElement('div'); row.className = `msg-row ${role}`;
-  if (role==='assistant') { const av=document.createElement('div'); av.className='avatar'; av.textContent='A'; row.appendChild(av); }
-  const b=document.createElement('div'); b.className=role==='user'?'bu':'ba'; b.textContent=content; row.appendChild(b);
-  if (role==='user') { const av=document.createElement('div'); av.className='uavatar'; av.textContent='U'; row.appendChild(av); }
-  msgs.appendChild(row); msgs.scrollTop=msgs.scrollHeight;
-}
-
-function addEvent(msg) {
-  const msgs = document.getElementById('messages');
-  const ev = document.createElement('div'); ev.className='event-bubble'; ev.textContent=msg;
-  msgs.appendChild(ev); msgs.scrollTop=msgs.scrollHeight;
-}
-
-let typingEl=null;
-function showTyping(show) {
-  if (show&&!typingEl) {
-    typingEl=document.createElement('div'); typingEl.className='msg-row assistant';
-    typingEl.innerHTML='<div class="avatar">A</div><div class="ba"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
-    const m=document.getElementById('messages'); m.appendChild(typingEl); m.scrollTop=m.scrollHeight;
-  } else if (!show&&typingEl) { typingEl.remove(); typingEl=null; }
-}
-
-function setStatus(msg) {
-  let el=document.getElementById('statusMsg');
-  if (!el) { el=document.createElement('div'); el.id='statusMsg'; el.className='status-msg'; document.getElementById('messages').appendChild(el); }
-  el.textContent=msg; el.style.display=msg?'block':'none';
-}
-
-// ══════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 // TTS
-// ══════════════════════════════════════════════════════════════════════════
-async function speakText(rawText) {
-  if (!speakEnabled) return;
-  const elevenKey = document.getElementById('elevenKey').value.trim();
-  const voiceVal  = document.getElementById('voiceSelect').value;
-  const voiceId   = voiceVal==='__custom__' ? document.getElementById('customVoiceId').value.trim() : voiceVal;
-  if (!elevenKey||!voiceId) return;
+// ════════════════════════════════════════════════════════════════
+async function speak(rawText) {
+  if(muted) return;
+  const elKey=document.getElementById('elKey').value.trim();
+  const sel=document.getElementById('voiceSel');
+  const voiceId=sel.value==='__custom__'?document.getElementById('customId').value.trim():sel.value;
+  if(!elKey||!voiceId) return;
 
-  // Apply audio direction tags to text
-  const processedText = preprocessText(rawText);
-
-  // Prepend literal prefix tags (e.g. [romanian accent] [seductive])
-  const live = document.getElementById('chat').classList.contains('active');
-  const prefixRaw = document.getElementById(live ? 'livePrefixTags' : 'prefixTags').value.trim();
-  const finalText = prefixRaw ? `${prefixRaw} ${processedText}` : processedText;
-
-  const vs = getVS();
-  const speed = vs.speed; // top-level param
-  const model = getElevenModel();
+  const processed=processText(rawText);
+  const pfx=getPrefix();
+  const finalText=pfx?pfx+' '+processed:processed;
+  const vs=getVS(); const speed=vs.speed;
 
   setStatus('Synthesising…');
   try {
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+    const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
       method:'POST',
-      headers:{ 'xi-api-key':elevenKey, 'Content-Type':'application/json' },
-      body: JSON.stringify({
-        text: finalText,
-        model_id: model,
-        voice_settings: {
-          stability: vs.stability,
-          similarity_boost: vs.similarity_boost,
-          style: vs.style,
-          use_speaker_boost: true,
-        },
-        speed: speed,
+      headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        text:finalText,
+        model_id:getElModel(),
+        voice_settings:{stability:vs.stability,similarity_boost:vs.similarity_boost,style:vs.style,use_speaker_boost:true},
+        speed
       })
     });
-    if (!res.ok) throw new Error(await res.text());
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    if(!res.ok) throw new Error(await res.text());
+    const url=URL.createObjectURL(await res.blob());
     stopAudio();
-    currentAudio = new Audio(url);
-    currentAudio.onplay  = () => { setWavePlaying(true);  setStatus(''); };
-    currentAudio.onended = () => { setWavePlaying(false); URL.revokeObjectURL(url); };
-    currentAudio.onerror = () => { setWavePlaying(false); setStatus('Audio error'); };
-    currentAudio.play();
+    audio=new Audio(url);
+    audio.onplay=()=>{setWave(true);setStatus('');};
+    audio.onended=()=>{setWave(false);URL.revokeObjectURL(url);};
+    audio.onerror=()=>{setWave(false);setStatus('Audio error');};
+    audio.play();
   } catch(e) {
     setStatus('Voice error: '+(e.message||'unknown'));
-    setWavePlaying(false);
+    setWave(false);
   }
 }
 
-function stopAudio() {
-  if (currentAudio) { currentAudio.pause(); currentAudio=null; }
-  setWavePlaying(false);
-}
-
+function stopAudio() { if(audio){audio.pause();audio=null;} setWave(false); }
 function toggleMute() {
-  speakEnabled=!speakEnabled;
-  document.getElementById('muteBtn').textContent=speakEnabled?'🔊':'🔇';
-  if (!speakEnabled) stopAudio();
+  muted=!muted;
+  document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+  if(muted) stopAudio();
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// SPEECH RECOGNITION (Web Speech API — works on iOS Safari 14.5+ / Chrome)
-// ══════════════════════════════════════════════════════════════════════════
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-let recognition = null;
-let isListening = false;
+// ════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════════════════════
+function addMsg(role, content) {
+  document.getElementById('emptyState')?.remove();
+  const msgs=document.getElementById('msgs');
+  const row=document.createElement('div'); row.className='mr'+(role==='user'?' u':'');
+  if(role==='assistant'){const av=document.createElement('div');av.className='av';av.textContent='A';row.appendChild(av);}
+  const b=document.createElement('div'); b.className=role==='user'?'bu':'ba'; b.textContent=content; row.appendChild(b);
+  if(role==='user'){const av=document.createElement('div');av.className='uav';av.textContent='U';row.appendChild(av);}
+  msgs.appendChild(row); msgs.scrollTop=msgs.scrollHeight;
+}
+function addEvent(msg) {
+  const msgs=document.getElementById('msgs');
+  const e=document.createElement('div'); e.className='ev'; e.textContent=msg;
+  msgs.appendChild(e); msgs.scrollTop=msgs.scrollHeight;
+}
+let typingEl=null;
+function showTyping(show) {
+  if(show && !typingEl) {
+    typingEl=document.createElement('div'); typingEl.className='mr';
+    typingEl.innerHTML='<div class="av">A</div><div class="ba"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    const m=document.getElementById('msgs'); m.appendChild(typingEl); m.scrollTop=m.scrollHeight;
+  } else if(!show && typingEl) { typingEl.remove(); typingEl=null; }
+}
+function setStatus(msg) {
+  let e=document.getElementById('smsg');
+  if(!e){e=document.createElement('div');e.id='smsg';e.className='smsg';document.getElementById('msgs').appendChild(e);}
+  e.textContent=msg; e.style.display=msg?'block':'none';
+}
 
+// ════════════════════════════════════════════════════════════════
+// SPEECH RECOGNITION
+// ════════════════════════════════════════════════════════════════
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recog=null, listening=false;
 function initMic() {
-  if (!SpeechRecognition) {
-    document.getElementById('micBtn').classList.add('no-support');
-    document.getElementById('micBtn').title = 'Speech not supported in this browser';
-    return;
-  }
-  recognition = new SpeechRecognition();
-  recognition.continuous = false;       // single utterance per tap
-  recognition.interimResults = true;    // show partial results as you speak
-  recognition.lang = 'en-GB';          // change to 'en-US' if preferred
-
-  recognition.onstart = () => {
-    isListening = true;
-    document.getElementById('micBtn').classList.add('listening');
-    document.getElementById('micStatus').textContent = '● Listening…';
+  if(!SR){document.getElementById('micBtn').style.opacity='.3';return;}
+  recog=new SR(); recog.continuous=false; recog.interimResults=true; recog.lang='en-GB';
+  recog.onstart=()=>{listening=true;document.getElementById('micBtn').classList.add('on');document.getElementById('mstat').textContent='● Listening…';};
+  recog.onresult=e=>{
+    let fin='',int='';
+    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else int+=t;}
+    const ci=document.getElementById('ci'); ci.value=fin||int;
+    document.getElementById('sb').disabled=!ci.value.trim();
+    if(fin.trim()) setTimeout(()=>send(),200);
   };
-
-  recognition.onresult = (e) => {
-    let interim = '';
-    let final = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) final += t;
-      else interim += t;
-    }
-    const input = document.getElementById('chatInput');
-    // Show interim in input as preview
-    input.value = final || interim;
-    document.getElementById('sendBtn').disabled = !input.value.trim();
-
-    // Auto-send when final result received
-    if (final.trim()) {
-      setTimeout(() => sendMessage(), 200);
-    }
-  };
-
-  recognition.onerror = (e) => {
-    const msgs = {
-      'not-allowed': 'Mic permission denied — check browser settings',
-      'no-speech':   'No speech detected',
-      'network':     'Network error',
-    };
-    document.getElementById('micStatus').textContent = msgs[e.error] || ('Error: ' + e.error);
-    stopMic();
-  };
-
-  recognition.onend = () => {
-    stopMic();
-  };
+  recog.onerror=e=>{document.getElementById('mstat').textContent=e.error==='not-allowed'?'Mic denied':('Error: '+e.error);stopMic();};
+  recog.onend=()=>stopMic();
 }
-
 function toggleMic() {
-  const btn = document.getElementById('micBtn');
-  if (btn.classList.contains('no-support')) return;
-  if (!recognition) initMic();
-  if (!recognition) return;
-
-  if (isListening) {
-    recognition.stop();
-  } else {
-    // Stop any playing audio so the mic doesn't pick it up
-    stopAudio();
-    try {
-      recognition.start();
-    } catch(e) {
-      // Already started — ignore
-    }
-  }
+  if(!recog){initMic();if(!recog)return;}
+  if(listening){recog.stop();}else{stopAudio();try{recog.start();}catch(e){}}
 }
-
 function stopMic() {
-  isListening = false;
-  document.getElementById('micBtn').classList.remove('listening');
-  document.getElementById('micStatus').textContent = '';
+  listening=false;
+  document.getElementById('micBtn').classList.remove('on');
+  document.getElementById('mstat').textContent='';
 }
 
-// Init mic on load (checks support silently)
+// ════════════════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════════════════
+buildWF();
+buildTags('tagRows', false);
+buildTags('liveTagRows', true);
+load();
+slAll();
 initMic();
-
-// ── BOOT ──────────────────────────────────────────────────────────────────
-// Script is at bottom of body so DOM is ready — call init directly
-init();
-
-// Close panel on outside click
-document.addEventListener('click', e => {
-  const panel=document.getElementById('qpanel');
-  const pill=document.getElementById('pPill');
-  if (panel.classList.contains('open')&&!panel.contains(e.target)&&e.target!==pill) panel.classList.remove('open');
-});
 </script>
 </body>
 </html>

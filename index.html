@@ -737,7 +737,7 @@ function go() {
     if(voiceVal === '__custom__') {
       voiceName = document.getElementById('customName').value.trim() || 'Custom Voice';
     } else {
-      voiceName = selIdx >= 0 && sel.options[selIdx] ? sel.options[selIdx].text : voiceVal || 'Voice';
+      voiceName = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : voiceVal || 'Voice';
     }
 
     const gm = document.getElementById('grokModel');

@@ -923,14 +923,16 @@ async function save() {
     const enc = await encrypt(JSON.stringify(settings), currentPin);
     const pinHash = await hashPin(currentPin);
     const payload = { id: SB_ROW, pin_hash: pinHash, enc_data: JSON.stringify(enc) };
-    // Upsert
-    await sbFetch('ami_settings?id=eq.' + SB_ROW, {
-      method: 'DELETE'
-    });
-    await sbFetch('ami_settings', {
+    // Proper upsert — insert or update on conflict
+    const res = await sbFetch('ami_settings', {
       method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify(payload)
     });
+    if(!res.ok) {
+      const txt = await res.text();
+      console.warn('save failed:', res.status, txt);
+    }
   } catch(e) { console.warn('save failed', e); }
 }
 
@@ -1009,6 +1011,8 @@ async function submitPin() {
         pinBusy=false; return;
       }
       currentPin = val;
+      document.getElementById('pinSub').textContent = 'Saving…';
+      await save();
       document.getElementById('pinScreen').classList.add('hide');
     }
   } catch(err) {

@@ -9,7 +9,26 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:#060410;color:#ead5fc;font-family:'DM Sans',sans-serif}
 
-/* ── SETUP ─────────────────────────────────────────────────────── */
+/* ── PIN SCREEN ─────────────────────────────────────────────────── */
+#pinScreen{position:fixed;inset:0;background:#060410;display:flex;align-items:center;justify-content:center;z-index:999;padding:20px}
+#pinScreen.hide{display:none}
+.pin-card{width:min(380px,100%);background:#100818;border:1px solid #2a0d40;border-radius:16px;padding:40px 32px;display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center}
+.pin-hex{font-size:48px;color:#c084fc;line-height:1;margin-bottom:4px}
+.pin-title{font-family:'DM Mono',monospace;font-weight:700;font-size:20px;color:#c084fc;letter-spacing:3px}
+.pin-sub{font-size:13px;color:#6a3a8a;line-height:1.5}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:8px 0}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #2a0d40;background:transparent;transition:all .15s}
+.pin-dot.filled{background:#c084fc;border-color:#c084fc}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.pin-btn{background:#140a1e;border:1px solid #2a0d40;border-radius:10px;color:#ead5fc;font-family:'DM Mono',monospace;font-size:20px;font-weight:600;padding:16px;cursor:pointer;transition:all .15s}
+.pin-btn:hover{background:#1e0a2e;border-color:#c084fc;color:#c084fc}
+.pin-btn.del{font-size:16px;color:#7a4a9a}
+.pin-btn.del:hover{color:#ff6b6b;border-color:#ff6b6b}
+.pin-err{color:#ff6b6b;font-family:'DM Mono',monospace;font-size:12px;min-height:18px;letter-spacing:.5px}
+.pin-hint{font-size:11px;color:#3a1a5a;cursor:pointer;text-decoration:underline}
+.pin-hint:hover{color:#9a70c0}
+
+
 #setup{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px}
 .card{width:min(580px,100%);background:#100818;border:1px solid #2a0d40;border-radius:16px;padding:36px 32px;display:flex;flex-direction:column;gap:20px}
 .logo-row{display:flex;align-items:center;gap:14px}
@@ -66,6 +85,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .setup-err{display:none;color:#ff6b6b;font-family:'DM Mono',monospace;font-size:12px;text-align:center;padding:4px 0;border:1px solid #ff6b6b33;border-radius:6px;background:#1a0808}
 .start-btn{background:#c084fc;color:#060410;border:none;border-radius:8px;padding:14px;font-family:'DM Mono',monospace;font-weight:700;font-size:14px;letter-spacing:3px;cursor:pointer;transition:opacity .2s}
 .privacy{font-size:11px;color:#3a1a5a;text-align:center}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
 /* ── CHAT ───────────────────────────────────────────────────────── */
 #chat{display:none;height:100vh;flex-direction:column;position:relative}
@@ -135,6 +155,37 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
 </style>
 </head>
 <body>
+
+<!-- ════════════════ PIN SCREEN ══════════════════════════════════ -->
+<div id="pinScreen">
+  <div class="pin-card">
+    <div class="pin-hex">⬡</div>
+    <div class="pin-title">AMI VOICE</div>
+    <div class="pin-sub" id="pinSub">Enter your PIN to unlock</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn del" onclick="pinClear()">✕</button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del" onclick="pinBack()">⌫</button>
+    </div>
+    <div class="pin-err" id="pinErr"></div>
+    <div class="pin-hint" id="pinReset" onclick="resetPin()" style="display:none">Reset PIN &amp; re-enter credentials</div>
+  </div>
+</div>
 
 <!-- ════════════════ SETUP ════════════════════════════════════════ -->
 <div id="setup">
@@ -647,58 +698,245 @@ function syncTagOther(isLive, tid, type, val) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// LOCALSTORAGE
+// SUPABASE + PIN CRYPTO
 // ════════════════════════════════════════════════════════════════
-function save() {
-  try {
-    const d={
-      xaiKey:    _v('xaiKey'),
-      elKey:     _v('elKey'),
-      grokModel: _v('grokModel'),
-      elModel:   _v('elModel'),
-      voiceId:   _v('voiceSel'),
-      customId:  _v('customId'),
-      customName:_v('customName'),
-      sysprompt: _v('sysprompt'),
-      prefix:    _v('prefix'),
-      preset,
-      stab: _v('stab'), sim: _v('sim'), sty: _v('sty'), spd: _v('spd'),
-      tagState: JSON.stringify(tagState),
-    };
-    localStorage.setItem('ami_v1', JSON.stringify(d));
-  } catch(e) {}
+// ⚠ Fill in your Supabase project details:
+const SB_URL  = 'https://nlvlyfdsvgrdlcqksafb.supabase.co';
+const SB_KEY  = 'YOUR_SUPABASE_ANON_KEY'; // paste your anon/public key here
+const SB_ROW  = 'ami_voice_v1';           // row ID in the table
+
+async function sbFetch(path, opts={}) {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    ...opts,
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(opts.headers||{})
+    }
+  });
+  return res;
 }
-function load() {
-  try {
-    const raw=localStorage.getItem('ami_v1'); if(!raw) return;
-    const d=JSON.parse(raw);
-    if(d.xaiKey)    { document.getElementById('xaiKey').value=d.xaiKey; }
-    if(d.elKey)     { document.getElementById('elKey').value=d.elKey; document.getElementById('loadBtn').disabled=d.elKey.trim().length<10; }
-    if(d.grokModel) { const s=document.getElementById('grokModel'); if(s.querySelector(`option[value="${d.grokModel}"]`)) s.value=d.grokModel; }
-    if(d.elModel)   { const s=document.getElementById('elModel');   if(s.querySelector(`option[value="${d.elModel}"]`))   s.value=d.elModel; }
-    if(d.customId)  document.getElementById('customId').value=d.customId;
-    if(d.customName)document.getElementById('customName').value=d.customName;
-    if(d.sysprompt!==undefined) document.getElementById('sysprompt').value=d.sysprompt;
-    if(d.prefix!==undefined)    document.getElementById('prefix').value=d.prefix;
-    if(d.stab) { document.getElementById('stab').value=d.stab; sl(document.getElementById('stab'),'stab_v'); }
-    if(d.sim)  { document.getElementById('sim').value=d.sim;   sl(document.getElementById('sim'),'sim_v'); }
-    if(d.sty)  { document.getElementById('sty').value=d.sty;   sl(document.getElementById('sty'),'sty_v'); }
-    if(d.spd)  { document.getElementById('spd').value=d.spd;   sl(document.getElementById('spd'),'spd_v'); }
-    if(d.tagState) {
-      try { const ts=JSON.parse(d.tagState); Object.keys(ts).forEach(k=>{ if(tagState[k]) tagState[k]=ts[k]; }); } catch(e) {}
-    }
-    if(d.preset && PRESETS[d.preset]) {
-      preset=d.preset;
-      document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===d.preset));
-      if(d.preset!=='custom') document.getElementById('sysprompt').value=PRESETS[d.preset].prompt;
-    }
-    // Restore voice — try to set, if option not in list it won't stick (user needs Load My Voices)
-    if(d.voiceId) {
-      document.getElementById('voiceSel').value=d.voiceId;
-      if(d.voiceId==='__custom__') document.getElementById('customBox').style.display='flex';
-    }
-  } catch(e) { console.warn('load failed',e); }
+
+// ── Crypto helpers ───────────────────────────────────────────────
+async function deriveKey(pin, saltHex) {
+  const salt = hexToBytes(saltHex);
+  const keyMat = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:200000, hash:'SHA-256' },
+    keyMat, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
 }
+async function encrypt(plaintext, pin) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveKey(pin, bytesToHex(salt));
+  const enc  = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(plaintext));
+  return { salt: bytesToHex(salt), iv: bytesToHex(iv), data: bytesToHex(new Uint8Array(enc)) };
+}
+async function decrypt(encObj, pin) {
+  const key  = await deriveKey(pin, encObj.salt);
+  const dec  = await crypto.subtle.decrypt({name:'AES-GCM', iv:hexToBytes(encObj.iv)}, key, hexToBytes(encObj.data));
+  return new TextDecoder().decode(dec);
+}
+async function hashPin(pin) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ami_salt_' + pin));
+  return bytesToHex(new Uint8Array(buf));
+}
+function bytesToHex(b) { return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function hexToBytes(h) { const a=new Uint8Array(h.length/2); for(let i=0;i<a.length;i++) a[i]=parseInt(h.slice(i*2,i*2+2),16); return a; }
+
+// ── Collect current settings into an object ──────────────────────
+function collectSettings() {
+  return {
+    xaiKey:    _v('xaiKey'),
+    elKey:     _v('elKey'),
+    grokModel: _v('grokModel'),
+    elModel:   _v('elModel'),
+    voiceId:   _v('voiceSel'),
+    customId:  _v('customId'),
+    customName:_v('customName'),
+    sysprompt: _v('sysprompt'),
+    prefix:    _v('prefix'),
+    preset,
+    stab: _v('stab'), sim: _v('sim'), sty: _v('sty'), spd: _v('spd'),
+    tagState: JSON.stringify(tagState),
+  };
+}
+
+// ── Apply a settings object to the UI ───────────────────────────
+function applySettings(d) {
+  if(d.xaiKey)    document.getElementById('xaiKey').value=d.xaiKey;
+  if(d.elKey)     { document.getElementById('elKey').value=d.elKey; document.getElementById('loadBtn').disabled=d.elKey.trim().length<10; }
+  if(d.grokModel) { const s=document.getElementById('grokModel'); if(s.querySelector(`option[value="${d.grokModel}"]`)) s.value=d.grokModel; }
+  if(d.elModel)   { const s=document.getElementById('elModel');   if(s.querySelector(`option[value="${d.elModel}"]`))   s.value=d.elModel; }
+  if(d.customId)  document.getElementById('customId').value=d.customId;
+  if(d.customName)document.getElementById('customName').value=d.customName;
+  if(d.sysprompt!==undefined) document.getElementById('sysprompt').value=d.sysprompt;
+  if(d.prefix!==undefined)    document.getElementById('prefix').value=d.prefix;
+  if(d.stab) { document.getElementById('stab').value=d.stab; sl(document.getElementById('stab'),'stab_v'); }
+  if(d.sim)  { document.getElementById('sim').value=d.sim;   sl(document.getElementById('sim'),'sim_v'); }
+  if(d.sty)  { document.getElementById('sty').value=d.sty;   sl(document.getElementById('sty'),'sty_v'); }
+  if(d.spd)  { document.getElementById('spd').value=d.spd;   sl(document.getElementById('spd'),'spd_v'); }
+  if(d.tagState) {
+    try { const ts=JSON.parse(d.tagState); Object.keys(ts).forEach(k=>{ if(tagState[k]) tagState[k]=ts[k]; }); } catch(e) {}
+  }
+  if(d.preset && PRESETS[d.preset]) {
+    preset=d.preset;
+    document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===d.preset));
+    if(d.preset!=='custom') document.getElementById('sysprompt').value=PRESETS[d.preset].prompt;
+  }
+  if(d.voiceId) {
+    document.getElementById('voiceSel').value=d.voiceId;
+    if(d.voiceId==='__custom__') document.getElementById('customBox').style.display='flex';
+  }
+}
+
+// ── Save to Supabase (called after go() and settings changes) ───
+async function save() {
+  const pin = sessionStorage.getItem('ami_pin'); if(!pin) return; // not unlocked yet
+  try {
+    const settings = collectSettings();
+    const enc = await encrypt(JSON.stringify(settings), pin);
+    const pinHash = await hashPin(pin);
+    const payload = { id: SB_ROW, pin_hash: pinHash, enc_data: JSON.stringify(enc) };
+    // Upsert
+    await sbFetch('ami_settings?id=eq.' + SB_ROW, {
+      method: 'DELETE'
+    });
+    await sbFetch('ami_settings', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  } catch(e) { console.warn('save failed', e); }
+}
+
+// ── PIN SCREEN STATE ─────────────────────────────────────────────
+let pinBuffer   = '';
+let pinMode     = 'unlock';   // 'unlock' | 'setup' | 'confirm'
+let pinSetupFirst = '';
+let storedHash  = null;
+let storedEnc   = null;
+
+function pinUpdateDots() {
+  for(let i=0;i<4;i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+function pinPress(d) {
+  if(pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  pinUpdateDots();
+  document.getElementById('pinErr').textContent = '';
+  if(pinBuffer.length === 4) setTimeout(pinSubmit, 120);
+}
+function pinBack() { if(pinBuffer.length>0){pinBuffer=pinBuffer.slice(0,-1);pinUpdateDots();} }
+function pinClear() { pinBuffer=''; pinUpdateDots(); document.getElementById('pinErr').textContent=''; }
+function pinErr(msg) {
+  document.getElementById('pinErr').textContent = msg;
+  pinBuffer=''; pinUpdateDots();
+  // Shake dots
+  const dots=document.getElementById('pinDots');
+  dots.style.animation='shake .3s ease';
+  setTimeout(()=>dots.style.animation='',400);
+}
+
+async function pinSubmit() {
+  const pin = pinBuffer; pinBuffer='';
+
+  if(pinMode === 'unlock') {
+    // Verify PIN and decrypt
+    const h = await hashPin(pin);
+    if(h !== storedHash) { pinErr('Wrong PIN — try again'); return; }
+    try {
+      const plain = await decrypt(storedEnc, pin);
+      const settings = JSON.parse(plain);
+      sessionStorage.setItem('ami_pin', pin);
+      applySettings(settings);
+      slAll();
+      document.getElementById('pinScreen').classList.add('hide');
+      document.getElementById('pinReset').style.display='none';
+    } catch(e) { pinErr('Decryption failed — wrong PIN?'); }
+
+  } else if(pinMode === 'setup') {
+    // First entry — ask to confirm
+    pinSetupFirst = pin;
+    pinMode = 'confirm';
+    document.getElementById('pinSub').textContent = 'Confirm your PIN';
+    pinUpdateDots();
+
+  } else if(pinMode === 'confirm') {
+    if(pin !== pinSetupFirst) {
+      pinMode = 'setup';
+      pinSetupFirst = '';
+      document.getElementById('pinSub').textContent = 'Choose a 4-digit PIN';
+      pinErr('PINs don\'t match — try again');
+      return;
+    }
+    // PINs match — save settings to Supabase
+    sessionStorage.setItem('ami_pin', pin);
+    document.getElementById('pinSub').textContent = 'Saving…';
+    await save();
+    document.getElementById('pinScreen').classList.add('hide');
+  }
+}
+
+function resetPin() {
+  if(!confirm('This will clear your saved credentials from Supabase. Continue?')) return;
+  sbFetch('ami_settings?id=eq.' + SB_ROW, { method:'DELETE' });
+  sessionStorage.removeItem('ami_pin');
+  pinMode = 'setup';
+  storedHash = null; storedEnc = null;
+  pinBuffer = '';
+  document.getElementById('pinSub').textContent = 'Choose a 4-digit PIN';
+  document.getElementById('pinReset').style.display = 'none';
+  document.getElementById('pinErr').textContent = '';
+  pinUpdateDots();
+}
+
+// ── BOOT: check Supabase for existing settings ───────────────────
+async function boot() {
+  buildWF();
+  buildTags('tagRows', false);
+  buildTags('liveTagRows', true);
+  slAll();
+  initMic();
+
+  // Check Supabase for saved settings
+  try {
+    document.getElementById('pinSub').textContent = 'Connecting…';
+    const res = await sbFetch('ami_settings?id=eq.' + SB_ROW + '&select=pin_hash,enc_data');
+    if(res.ok) {
+      const rows = await res.json();
+      if(rows.length > 0) {
+        // Existing settings — show unlock PIN screen
+        storedHash = rows[0].pin_hash;
+        storedEnc  = JSON.parse(rows[0].enc_data);
+        pinMode    = 'unlock';
+        document.getElementById('pinSub').textContent = 'Enter your PIN to unlock';
+        document.getElementById('pinReset').style.display = 'block';
+      } else {
+        // First use — show setup PIN screen
+        pinMode = 'setup';
+        document.getElementById('pinSub').textContent = 'First time setup — choose a 4-digit PIN';
+      }
+    } else {
+      throw new Error('Supabase error ' + res.status);
+    }
+  } catch(e) {
+    // Supabase unreachable — fall back to setup without PIN storage
+    console.warn('Supabase unavailable:', e.message);
+    pinMode = 'setup';
+    document.getElementById('pinSub').textContent = '⚠ Supabase unavailable — credentials won\'t be saved';
+    setTimeout(()=>{
+      document.getElementById('pinScreen').classList.add('hide');
+    }, 2500);
+  }
+}
+
+
+
 function _v(id) { const e=document.getElementById(id); return e?e.value:''; }
 
 // ════════════════════════════════════════════════════════════════
@@ -1020,12 +1258,7 @@ function stopMic() {
 // ════════════════════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════════════════════
-buildWF();
-buildTags('tagRows', false);
-buildTags('liveTagRows', true);
-load();
-slAll();
-initMic();
+boot();
 </script>
 </body>
 </html>

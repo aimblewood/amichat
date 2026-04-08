@@ -108,6 +108,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .ib{background:none;border:1px solid #2a0d40;border-radius:8px;color:#c898e8;font-size:15px;padding:5px 9px;cursor:pointer}
 .ib:hover{border-color:#c084fc;color:#c084fc}
 .sb2{background:#1a1030;border:1px solid #c084fc;border-radius:8px;color:#c084fc;font-size:12px;padding:5px 9px;cursor:pointer;font-weight:700}
+.pause-btn{background:#1a1030;border:1px solid #c084fc;border-radius:8px;color:#c084fc;font-size:14px;padding:5px 9px;cursor:pointer;display:none}
+/* replay button on assistant bubbles */
+.replay-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:7px;background:none;border:1px solid #2a0d40;border-radius:6px;color:#c084fc;font-size:12px;padding:3px 9px;cursor:pointer;gap:4px;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .15s;opacity:.7}
+.replay-btn:hover{opacity:1;border-color:#c084fc;background:#1a0828}
+.replay-btn.loading{opacity:.4;cursor:default}
+.ba-wrap{display:flex;flex-direction:column;align-items:flex-start;max-width:72%}
 /* quick panel */
 .qp{display:none;position:absolute;top:58px;right:16px;z-index:200;background:#100818;border:1px solid #2a0d40;border-radius:12px;padding:18px;width:360px;flex-direction:column;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.7);max-height:calc(100vh - 80px);overflow-y:auto}
 .qp.on{display:flex}
@@ -432,6 +438,7 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     <div class="hr2">
       <div class="wf" id="wf"></div>
       <button class="sb2" id="stopBtn" onclick="stopAudio()" style="display:none">■</button>
+      <button class="pause-btn" id="pauseBtn" onclick="togglePause()">⏸</button>
       <button class="ppill" id="pill" onclick="togglePanel()">Standard</button>
       <button class="ib" id="muteBtn" onclick="toggleMute()">🔊</button>
       <button class="ib" onclick="goSetup()">⚙</button>
@@ -715,7 +722,9 @@ function buildWF() {
 }
 function setWave(on) {
   document.querySelectorAll('.wb').forEach(b=>b.classList.toggle('on',on));
-  document.getElementById('stopBtn').style.display=on?'inline-block':'none';
+  document.getElementById('stopBtn').style.display = on ? 'inline-block' : 'none';
+  document.getElementById('pauseBtn').style.display = on ? 'inline-block' : 'none';
+  document.getElementById('pauseBtn').textContent = '⏸';
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1331,6 +1340,7 @@ async function speak(rawText) {
     };
     audio.onended=()=>{
       setWave(false); URL.revokeObjectURL(url);
+      document.getElementById('pauseBtn').style.display='none';
       const bar=document.getElementById('synthBar');
       const overlay=document.getElementById('synthOverlay');
       if(bar) bar.classList.remove('on');
@@ -1348,9 +1358,24 @@ async function speak(rawText) {
   }
 }
 
+function togglePause() {
+  if(!audio) return;
+  const btn = document.getElementById('pauseBtn');
+  if(audio.paused) {
+    audio.play();
+    btn.textContent = '⏸';
+    document.querySelectorAll('.wb').forEach(b=>b.classList.add('on'));
+  } else {
+    audio.pause();
+    btn.textContent = '▶';
+    document.querySelectorAll('.wb').forEach(b=>b.classList.remove('on'));
+  }
+}
+
 function stopAudio() {
   if(audio){audio.pause();audio=null;}
   setWave(false);
+  document.getElementById('pauseBtn').style.display='none';
   document.getElementById('synthBar')?.classList.remove('on');
   document.getElementById('synthOverlay')?.classList.remove('on');
 }
@@ -1365,12 +1390,40 @@ function toggleMute() {
 // ════════════════════════════════════════════════════════════════
 function addMsg(role, content) {
   document.getElementById('emptyState')?.remove();
-  const msgs=document.getElementById('msgs');
-  const row=document.createElement('div'); row.className='mr'+(role==='user'?' u':'');
-  if(role==='assistant'){const av=document.createElement('div');av.className='av';av.textContent='A';row.appendChild(av);}
-  const b=document.createElement('div'); b.className=role==='user'?'bu':'ba'; b.textContent=content; row.appendChild(b);
-  if(role==='user'){const av=document.createElement('div');av.className='uav';av.textContent='U';row.appendChild(av);}
-  msgs.appendChild(row); msgs.scrollTop=msgs.scrollHeight;
+  const msgs = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.className = 'mr' + (role === 'user' ? ' u' : '');
+
+  if(role === 'assistant') {
+    const av = document.createElement('div'); av.className='av'; av.textContent='A';
+    row.appendChild(av);
+
+    // Wrap bubble + replay button together
+    const wrap = document.createElement('div'); wrap.className='ba-wrap';
+    const b = document.createElement('div'); b.className='ba'; b.textContent=content;
+    wrap.appendChild(b);
+
+    // Replay button
+    const rb = document.createElement('button'); rb.className='replay-btn';
+    rb.innerHTML='▶ replay';
+    rb.onclick = async () => {
+      if(rb.classList.contains('loading')) return;
+      rb.classList.add('loading'); rb.textContent='…';
+      await speak(content);
+      rb.classList.remove('loading'); rb.innerHTML='▶ replay';
+    };
+    wrap.appendChild(rb);
+    row.appendChild(wrap);
+
+  } else {
+    const b = document.createElement('div'); b.className='bu'; b.textContent=content;
+    row.appendChild(b);
+    const av = document.createElement('div'); av.className='uav'; av.textContent='U';
+    row.appendChild(av);
+  }
+
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 function addEvent(msg) {
   const msgs=document.getElementById('msgs');

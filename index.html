@@ -140,7 +140,11 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
 /* input */
 .ibar{background:#0e0718;border-top:1px solid #2a0d40;flex-shrink:0}
 
-/* ── SYNTH INDICATOR ── */
+/* ── SLIDER INCREMENT BUTTONS ── */
+.sr-wrap{display:flex;align-items:center;gap:6px}
+.sr-wrap input[type=range]{flex:1}
+.inc-btn{background:#140a1e;border:1px solid #2a0d40;border-radius:6px;color:#c084fc;font-size:14px;font-family:'DM Mono',monospace;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;transition:background .15s}
+.inc-btn:hover{background:#2a0d40}
 .synth-bar{
   height:3px;width:100%;background:transparent;
   position:relative;overflow:hidden;flex-shrink:0;
@@ -217,11 +221,7 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
       <div class="pin-dot" id="pd2"></div>
       <div class="pin-dot" id="pd3"></div>
     </div>
-    <!-- Hidden input captures keyboard / mobile numpad -->
-    <input type="password" inputmode="numeric" id="pinInput"
-      maxlength="4" autocomplete="one-time-code"
-      style="position:absolute;opacity:0;width:1px;height:1px;top:0;left:0"
-      oninput="onPinInput(this.value)">
+    <!-- No hidden input — pure JS buffer, works on all platforms -->
     <div class="pin-pad">
       <button class="pin-btn" onclick="padPress('1')">1</button>
       <button class="pin-btn" onclick="padPress('2')">2</button>
@@ -359,22 +359,38 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
       <div class="sr">
         <div class="slr"><span>Stability</span><span class="sv" id="stab_v">0.25</span></div>
         <div class="sd">Low = emotional · High = consistent/flat</div>
-        <input type="range" id="stab" min="0" max="100" value="25" oninput="sl(this,'stab_v')">
+        <div class="sr-wrap">
+          <button class="inc-btn" onclick="nudge('stab','stab_v',-1)">−</button>
+          <input type="range" id="stab" min="0" max="100" value="25" oninput="sl(this,'stab_v')">
+          <button class="inc-btn" onclick="nudge('stab','stab_v',1)">+</button>
+        </div>
       </div>
       <div class="sr">
         <div class="slr"><span>Similarity</span><span class="sv" id="sim_v">0.85</span></div>
         <div class="sd">Higher = truer to your voice character</div>
-        <input type="range" id="sim" min="0" max="100" value="85" oninput="sl(this,'sim_v')">
+        <div class="sr-wrap">
+          <button class="inc-btn" onclick="nudge('sim','sim_v',-1)">−</button>
+          <input type="range" id="sim" min="0" max="100" value="85" oninput="sl(this,'sim_v')">
+          <button class="inc-btn" onclick="nudge('sim','sim_v',1)">+</button>
+        </div>
       </div>
       <div class="sr">
         <div class="slr"><span>Style</span><span class="sv" id="sty_v">0.45</span></div>
         <div class="sd">Higher = more dramatic delivery</div>
-        <input type="range" id="sty" min="0" max="100" value="45" oninput="sl(this,'sty_v')">
+        <div class="sr-wrap">
+          <button class="inc-btn" onclick="nudge('sty','sty_v',-1)">−</button>
+          <input type="range" id="sty" min="0" max="100" value="45" oninput="sl(this,'sty_v')">
+          <button class="inc-btn" onclick="nudge('sty','sty_v',1)">+</button>
+        </div>
       </div>
       <div class="sr">
         <div class="slr"><span>Speed</span><span class="sv" id="spd_v">0.70</span></div>
         <div class="sd">0.3 = very slow drawl · 0.7 = slow · 1.0 = normal</div>
-        <input type="range" id="spd" min="30" max="120" value="70" oninput="sl(this,'spd_v')">
+        <div class="sr-wrap">
+          <button class="inc-btn" onclick="nudge('spd','spd_v',-1)">−</button>
+          <input type="range" id="spd" min="30" max="120" value="70" oninput="sl(this,'spd_v')">
+          <button class="inc-btn" onclick="nudge('spd','spd_v',1)">+</button>
+        </div>
       </div>
     </div>
   </div>
@@ -460,10 +476,10 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
         <button class="vsb" onclick="applyVP('calm',1)">Calm</button>
         <button class="vsb" onclick="applyVP('clear',1)">Clear</button>
       </div>
-      <div class="sr"><div class="slr"><span>Stability</span><span class="sv" id="lstab_v">0.25</span></div><input type="range" id="lstab" min="0" max="100" value="25" oninput="sl(this,'lstab_v')"></div>
-      <div class="sr"><div class="slr"><span>Similarity</span><span class="sv" id="lsim_v">0.85</span></div><input type="range" id="lsim" min="0" max="100" value="85" oninput="sl(this,'lsim_v')"></div>
-      <div class="sr"><div class="slr"><span>Style</span><span class="sv" id="lsty_v">0.45</span></div><input type="range" id="lsty" min="0" max="100" value="45" oninput="sl(this,'lsty_v')"></div>
-      <div class="sr"><div class="slr"><span>Speed</span><span class="sv" id="lspd_v">0.70</span></div><input type="range" id="lspd" min="30" max="120" value="70" oninput="sl(this,'lspd_v')"></div>
+      <div class="sr"><div class="slr"><span>Stability</span><span class="sv" id="lstab_v">0.25</span></div><div class="sr-wrap"><button class="inc-btn" onclick="nudge('lstab','lstab_v',-1)">−</button><input type="range" id="lstab" min="0" max="100" value="25" oninput="sl(this,'lstab_v')"><button class="inc-btn" onclick="nudge('lstab','lstab_v',1)">+</button></div></div>
+      <div class="sr"><div class="slr"><span>Similarity</span><span class="sv" id="lsim_v">0.85</span></div><div class="sr-wrap"><button class="inc-btn" onclick="nudge('lsim','lsim_v',-1)">−</button><input type="range" id="lsim" min="0" max="100" value="85" oninput="sl(this,'lsim_v')"><button class="inc-btn" onclick="nudge('lsim','lsim_v',1)">+</button></div></div>
+      <div class="sr"><div class="slr"><span>Style</span><span class="sv" id="lsty_v">0.45</span></div><div class="sr-wrap"><button class="inc-btn" onclick="nudge('lsty','lsty_v',-1)">−</button><input type="range" id="lsty" min="0" max="100" value="45" oninput="sl(this,'lsty_v')"><button class="inc-btn" onclick="nudge('lsty','lsty_v',1)">+</button></div></div>
+      <div class="sr"><div class="slr"><span>Speed</span><span class="sv" id="lspd_v">0.70</span></div><div class="sr-wrap"><button class="inc-btn" onclick="nudge('lspd','lspd_v',-1)">−</button><input type="range" id="lspd" min="30" max="120" value="70" oninput="sl(this,'lspd_v')"><button class="inc-btn" onclick="nudge('lspd','lspd_v',1)">+</button></div></div>
     </div>
     <hr class="div">
     <div class="field">
@@ -822,6 +838,7 @@ function collectSettings() {
     preset,
     stab: _v('stab'), sim: _v('sim'), sty: _v('sty'), spd: _v('spd'),
     tagState: JSON.stringify(tagState),
+    chatHistory: JSON.stringify(history.slice(-40)), // last 40 messages
   };
 }
 
@@ -879,6 +896,14 @@ function applySettings(d) {
   if(d.sysprompt !== undefined) {
     document.getElementById('sysprompt').value = d.sysprompt;
   }
+
+  // Chat history — restore into memory (rendered when chat opens)
+  if(d.chatHistory) {
+    try {
+      const h = JSON.parse(d.chatHistory);
+      if(Array.isArray(h) && h.length > 0) history = h;
+    } catch(e) {}
+  }
 }
 
 // ── Save to Supabase (called after go() and settings changes) ───
@@ -900,76 +925,64 @@ async function save() {
   } catch(e) { console.warn('save failed', e); }
 }
 
-// ── PIN SCREEN ────────────────────────────────────────────────────
-let pinMode       = 'unlock';  // 'unlock' | 'setup' | 'confirm'
-let pinFirst      = '';        // stores first entry during setup
+// ── PIN SCREEN — pure JS buffer, no hidden input ─────────────────
+let pinMode       = 'unlock';
+let pinFirst      = '';
 let storedHash    = null;
 let storedEnc     = null;
-let currentPin    = null;      // held in memory only — never persisted
-let pinBusy       = false;     // prevent double-submit during async
+let currentPin    = null;
+let pinBusy       = false;
+let _pinBuf       = '';        // internal buffer
 
-// Single source of truth for what's typed — always read from the hidden input
-function getPinVal() { return document.getElementById('pinInput').value; }
-
-function updateDots(val) {
+function _pinUpdateDots() {
   for(let i=0;i<4;i++)
-    document.getElementById('pd'+i).classList.toggle('filled', i < val.length);
+    document.getElementById('pd'+i).classList.toggle('filled', i < _pinBuf.length);
 }
 
-// Called by the hidden input's oninput — keeps dots in sync with keyboard entry
-function onPinInput(val) {
-  updateDots(val);
-  document.getElementById('pinErr').textContent = '';
-  if(val.length === 4) { setTimeout(submitPin, 120); }
-}
-
-// On-screen pad buttons write to the hidden input
 function padPress(d) {
-  const inp = document.getElementById('pinInput');
-  if(inp.value.length >= 4) return;
-  inp.value += d;
-  inp.dispatchEvent(new Event('input'));
-  inp.focus();
+  if(_pinBuf.length >= 4 || pinBusy) return;
+  _pinBuf += d;
+  _pinUpdateDots();
+  document.getElementById('pinErr').textContent = '';
+  if(_pinBuf.length === 4) setTimeout(submitPin, 150);
 }
+
 function padDel() {
-  const inp = document.getElementById('pinInput');
-  inp.value = inp.value.slice(0,-1);
-  updateDots(inp.value);
+  _pinBuf = _pinBuf.slice(0,-1);
+  _pinUpdateDots();
 }
+
 function padClear() {
-  const inp = document.getElementById('pinInput');
-  inp.value = '';
-  updateDots('');
+  _pinBuf = '';
+  _pinUpdateDots();
   document.getElementById('pinErr').textContent = '';
 }
 
 function showPinErr(msg) {
   document.getElementById('pinErr').textContent = msg;
-  const inp = document.getElementById('pinInput');
-  inp.value = ''; updateDots('');
+  _pinBuf = '';
+  _pinUpdateDots();
   const dots = document.getElementById('pinDots');
   dots.style.animation = 'shake .35s ease';
-  setTimeout(()=>{ dots.style.animation=''; inp.focus(); }, 380);
+  setTimeout(()=>{ dots.style.animation=''; }, 380);
 }
 
 async function submitPin() {
   if(pinBusy) return;
-  const val = getPinVal();
+  const val = _pinBuf;
   if(val.length < 4) return;
   pinBusy = true;
-
-  const inp = document.getElementById('pinInput');
-  inp.value = ''; updateDots('');
+  _pinBuf = '';
+  _pinUpdateDots();
 
   try {
     if(pinMode === 'unlock') {
       const h = await hashPin(val);
       if(h !== storedHash) { showPinErr('Wrong PIN — try again'); pinBusy=false; return; }
       const plain = await decrypt(storedEnc, val);
-      currentPin = val;  // keep in memory for save()
+      currentPin = val;
       applySettings(JSON.parse(plain));
       slAll();
-      // Rebuild tag rows so their checkboxes/sliders reflect loaded state
       buildTags('tagRows', false);
       buildTags('liveTagRows', true);
       document.getElementById('pinScreen').classList.add('hide');
@@ -978,7 +991,6 @@ async function submitPin() {
       pinFirst = val;
       pinMode = 'confirm';
       document.getElementById('pinSub').textContent = 'Confirm your PIN';
-      inp.focus();
 
     } else if(pinMode === 'confirm') {
       if(val !== pinFirst) {
@@ -987,8 +999,6 @@ async function submitPin() {
         showPinErr('PINs don\'t match — try again');
         pinBusy=false; return;
       }
-      // PIN confirmed — store it in memory, show setup screen
-      // Settings will be saved when user hits Start Session
       currentPin = val;
       document.getElementById('pinScreen').classList.add('hide');
     }
@@ -1000,25 +1010,26 @@ async function submitPin() {
 }
 
 function resetPin() {
-  if(!confirm('Clear your saved credentials from Supabase and start over?')) return;
+  if(!confirm('Clear saved credentials from Supabase and start over?')) return;
   sbFetch('ami_settings?id=eq.' + SB_ROW, { method:'DELETE' });
   currentPin = null; storedHash = null; storedEnc = null;
-  pinMode = 'setup'; pinFirst = '';
+  pinMode = 'setup'; pinFirst = ''; _pinBuf = '';
   document.getElementById('pinSub').textContent = 'Choose a 4-digit PIN';
   document.getElementById('pinReset').style.display = 'none';
   document.getElementById('pinErr').textContent = '';
-  padClear();
-  setTimeout(()=>document.getElementById('pinInput').focus(), 100);
+  _pinUpdateDots();
 }
 
-// Focus the hidden input whenever PIN screen is tapped (so keyboard works)
-document.getElementById('pinScreen').addEventListener('click', ()=>{
-  document.getElementById('pinInput').focus();
-});
 
 
+function nudge(id, vid, delta) {
+  const el = document.getElementById(id);
+  el.value = Math.min(+el.max, Math.max(+el.min, +el.value + delta));
+  sl(el, vid);
+  save();
+}
 
-// ── BOOT: check Supabase for existing settings ───────────────────
+
 async function boot() {
   buildWF();
   buildTags('tagRows', false);
@@ -1177,9 +1188,16 @@ async function go() {
     slAll();
     await save();
 
-    history = [];
+    history = history.length ? history : []; // keep loaded history if present
     document.getElementById('setup').style.display = 'none';
     document.getElementById('chat').classList.add('on');
+
+    // Render any restored chat history
+    if(history.length > 0) {
+      document.getElementById('emptyState')?.remove();
+      history.forEach(m => addMsg(m.role, m.content));
+    }
+
     setTimeout(() => document.getElementById('ci').focus(), 100);
 
   } catch(err) {
@@ -1265,6 +1283,7 @@ async function send() {
     const reply=data.choices?.[0]?.message?.content||'(no response)';
     history.push({role:'assistant',content:reply});
     showTyping(false); addMsg('assistant',reply); setStatus('');
+    save(); // persist updated history
     await speak(reply);
   } catch(e) {
     showTyping(false); setStatus('Grok error: '+(e.message||'unknown'));

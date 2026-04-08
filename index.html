@@ -139,6 +139,55 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
 .ev{text-align:center;font-size:11px;color:#a87cc4;font-family:'DM Mono',monospace;padding:2px 0}
 /* input */
 .ibar{background:#0e0718;border-top:1px solid #2a0d40;flex-shrink:0}
+
+/* ── SYNTH INDICATOR ── */
+.synth-bar{
+  height:3px;width:100%;background:transparent;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.synth-bar.on{background:#1a0828}
+.synth-bar::before,.synth-bar::after{
+  content:'';position:absolute;top:0;height:100%;
+  border-radius:4px;opacity:0;transition:opacity .3s;
+}
+.synth-bar.on::before{
+  width:60%;background:linear-gradient(90deg,transparent,#c084fc,#e0b0ff,#c084fc,transparent);
+  animation:synthSlide 1.4s ease-in-out infinite;opacity:1;
+}
+.synth-bar.on::after{
+  width:40%;background:linear-gradient(90deg,transparent,#9b5de5,#c084fc,transparent);
+  animation:synthSlide 1.4s ease-in-out .5s infinite;opacity:.6;
+}
+@keyframes synthSlide{
+  0%{left:-65%}
+  100%{left:110%}
+}
+
+/* ── SYNTH OVERLAY (shown over messages during synthesis) ── */
+#synthOverlay{
+  display:none;position:absolute;bottom:0;left:0;right:0;
+  pointer-events:none;z-index:50;
+}
+#synthOverlay.on{display:block}
+.synth-glow{
+  height:120px;
+  background:linear-gradient(to top, rgba(192,132,252,.18), transparent);
+  animation:synthGlow 1.4s ease-in-out infinite alternate;
+}
+@keyframes synthGlow{
+  from{opacity:.5}
+  to{opacity:1}
+}
+.synth-label{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;
+  color:#c084fc;text-transform:uppercase;white-space:nowrap;
+  animation:synthPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes synthPulse{
+  from{opacity:.4}
+  to{opacity:1}
+}
 .ia{display:flex;gap:10px;padding:14px 16px;max-width:740px;width:100%;margin:0 auto}
 .ci{flex:1;background:#140a1e;border:1px solid #2a0d40;border-radius:10px;padding:12px 16px;color:#ead5fc;font-size:14px;outline:none;font-family:'DM Sans',sans-serif}
 .ci:focus{border-color:#c084fc}
@@ -429,6 +478,11 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
   </div>
 
   <div class="msgs" id="msgs">
+    <!-- Synth overlay sits inside messages area -->
+    <div id="synthOverlay">
+      <div class="synth-glow"></div>
+      <div class="synth-label" id="synthLabel">Synthesising</div>
+    </div>
     <div class="empty" id="emptyState">
       <div class="e-hex">⬡</div>
       <div class="e-title">Say something to Andreea</div>
@@ -437,6 +491,7 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     </div>
   </div>
 
+  <div class="synth-bar" id="synthBar"></div>
   <div class="ibar">
     <div class="ia">
       <button class="micbtn" id="micBtn" onclick="toggleMic()">🎤</button>
@@ -707,7 +762,7 @@ function syncTagOther(isLive, tid, type, val) {
 // ════════════════════════════════════════════════════════════════
 // ⚠ Fill in your Supabase project details:
 const SB_URL  = 'https://nlvlyfdsvgrdlcqksafb.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sdmx5ZmRzdmdyZGxjcWtzYWZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDA0MjAsImV4cCI6MjA2OTM3NjQyMH0.MLg9xi2mOVSk6vQQxnlMBr58yVbUwzOrjNydsN_tWzg'; // paste your anon/public key here
+const SB_KEY  = 'YOUR_SUPABASE_ANON_KEY'; // paste your anon/public key here
 const SB_ROW  = 'ami_voice_v1';           // row ID in the table
 
 async function sbFetch(path, opts={}) {
@@ -1212,9 +1267,28 @@ async function speak(rawText) {
     const url=URL.createObjectURL(await res.blob());
     stopAudio();
     audio=new Audio(url);
-    audio.onplay=()=>{setWave(true);setStatus('');};
-    audio.onended=()=>{setWave(false);URL.revokeObjectURL(url);};
-    audio.onerror=()=>{setWave(false);setStatus('Audio error');};
+    audio.onplay=()=>{
+      setWave(true); setStatus('');
+      // Keep synth bar running during playback
+      const bar=document.getElementById('synthBar');
+      const overlay=document.getElementById('synthOverlay');
+      const label=document.getElementById('synthLabel');
+      if(bar) bar.classList.add('on');
+      if(overlay) overlay.classList.add('on');
+      if(label) label.textContent='Speaking';
+    };
+    audio.onended=()=>{
+      setWave(false); URL.revokeObjectURL(url);
+      const bar=document.getElementById('synthBar');
+      const overlay=document.getElementById('synthOverlay');
+      if(bar) bar.classList.remove('on');
+      if(overlay) overlay.classList.remove('on');
+    };
+    audio.onerror=()=>{
+      setWave(false); setStatus('Audio error');
+      document.getElementById('synthBar')?.classList.remove('on');
+      document.getElementById('synthOverlay')?.classList.remove('on');
+    };
     audio.play();
   } catch(e) {
     setStatus('Voice error: '+(e.message||'unknown'));
@@ -1222,7 +1296,12 @@ async function speak(rawText) {
   }
 }
 
-function stopAudio() { if(audio){audio.pause();audio=null;} setWave(false); }
+function stopAudio() {
+  if(audio){audio.pause();audio=null;}
+  setWave(false);
+  document.getElementById('synthBar')?.classList.remove('on');
+  document.getElementById('synthOverlay')?.classList.remove('on');
+}
 function toggleMute() {
   muted=!muted;
   document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
@@ -1255,9 +1334,26 @@ function showTyping(show) {
   } else if(!show && typingEl) { typingEl.remove(); typingEl=null; }
 }
 function setStatus(msg) {
-  let e=document.getElementById('smsg');
-  if(!e){e=document.createElement('div');e.id='smsg';e.className='smsg';document.getElementById('msgs').appendChild(e);}
-  e.textContent=msg; e.style.display=msg?'block':'none';
+  // Drive synth indicator
+  const isSynth = msg === 'Synthesising…';
+  const bar     = document.getElementById('synthBar');
+  const overlay = document.getElementById('synthOverlay');
+  const label   = document.getElementById('synthLabel');
+  if(bar)     bar.classList.toggle('on', isSynth);
+  if(overlay) overlay.classList.toggle('on', isSynth);
+  if(label)   label.textContent = isSynth ? 'Synthesising' : '';
+
+  // Show plain status text for errors / thinking
+  let e = document.getElementById('smsg');
+  if(!e) {
+    e = document.createElement('div');
+    e.id = 'smsg'; e.className = 'smsg';
+    document.getElementById('msgs').appendChild(e);
+  }
+  // Don't show "Synthesising…" as text — the animation does that
+  const display = (msg && !isSynth) ? msg : '';
+  e.textContent = display;
+  e.style.display = display ? 'block' : 'none';
 }
 
 // ════════════════════════════════════════════════════════════════

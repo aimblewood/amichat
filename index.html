@@ -827,29 +827,57 @@ function collectSettings() {
 
 // ── Apply a settings object to the UI ───────────────────────────
 function applySettings(d) {
-  if(d.xaiKey)    document.getElementById('xaiKey').value=d.xaiKey;
-  if(d.elKey)     { document.getElementById('elKey').value=d.elKey; document.getElementById('loadBtn').disabled=d.elKey.trim().length<10; }
-  if(d.grokModel) { const s=document.getElementById('grokModel'); if(s.querySelector(`option[value="${d.grokModel}"]`)) s.value=d.grokModel; }
-  if(d.elModel)   { const s=document.getElementById('elModel');   if(s.querySelector(`option[value="${d.elModel}"]`))   s.value=d.elModel; }
-  if(d.customId)  document.getElementById('customId').value=d.customId;
-  if(d.customName)document.getElementById('customName').value=d.customName;
-  if(d.sysprompt!==undefined) document.getElementById('sysprompt').value=d.sysprompt;
-  if(d.prefix!==undefined)    document.getElementById('prefix').value=d.prefix;
-  if(d.stab) { document.getElementById('stab').value=d.stab; sl(document.getElementById('stab'),'stab_v'); }
-  if(d.sim)  { document.getElementById('sim').value=d.sim;   sl(document.getElementById('sim'),'sim_v'); }
-  if(d.sty)  { document.getElementById('sty').value=d.sty;   sl(document.getElementById('sty'),'sty_v'); }
-  if(d.spd)  { document.getElementById('spd').value=d.spd;   sl(document.getElementById('spd'),'spd_v'); }
+  if(d.xaiKey)     document.getElementById('xaiKey').value = d.xaiKey;
+  if(d.elKey)      { document.getElementById('elKey').value = d.elKey; document.getElementById('loadBtn').disabled = d.elKey.trim().length < 10; }
+  if(d.customId)   document.getElementById('customId').value = d.customId;
+  if(d.customName) document.getElementById('customName').value = d.customName;
+  if(d.prefix !== undefined) document.getElementById('prefix').value = d.prefix;
+
+  if(d.grokModel) {
+    const s = document.getElementById('grokModel');
+    if(s.querySelector(`option[value="${d.grokModel}"]`)) s.value = d.grokModel;
+  }
+  if(d.elModel) {
+    const s = document.getElementById('elModel');
+    if(s.querySelector(`option[value="${d.elModel}"]`)) s.value = d.elModel;
+  }
+
+  // Sliders — set value AND update visual gradient + label
+  const sliderMap = [
+    ['stab','stab_v'], ['sim','sim_v'], ['sty','sty_v'], ['spd','spd_v']
+  ];
+  sliderMap.forEach(([id, vid]) => {
+    const val = d[id];
+    if(val !== undefined && val !== null && val !== '') {
+      const el = document.getElementById(id);
+      el.value = val;
+      sl(el, vid);  // updates CSS --pct and label
+    }
+  });
+
+  // Tag state
   if(d.tagState) {
-    try { const ts=JSON.parse(d.tagState); Object.keys(ts).forEach(k=>{ if(tagState[k]) tagState[k]=ts[k]; }); } catch(e) {}
+    try {
+      const ts = JSON.parse(d.tagState);
+      Object.keys(ts).forEach(k => { if(tagState[k]) tagState[k] = ts[k]; });
+    } catch(e) {}
   }
-  if(d.preset && PRESETS[d.preset]) {
-    preset=d.preset;
-    document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===d.preset));
-    if(d.preset!=='custom') document.getElementById('sysprompt').value=PRESETS[d.preset].prompt;
-  }
+
+  // Voice
   if(d.voiceId) {
-    document.getElementById('voiceSel').value=d.voiceId;
-    if(d.voiceId==='__custom__') document.getElementById('customBox').style.display='flex';
+    document.getElementById('voiceSel').value = d.voiceId;
+    if(d.voiceId === '__custom__') document.getElementById('customBox').style.display = 'flex';
+  }
+
+  // Preset — apply button state but DON'T overwrite a custom system prompt
+  if(d.preset && PRESETS[d.preset]) {
+    preset = d.preset;
+    document.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === d.preset));
+  }
+
+  // System prompt — always restore saved value, applied AFTER preset so it wins
+  if(d.sysprompt !== undefined) {
+    document.getElementById('sysprompt').value = d.sysprompt;
   }
 }
 
@@ -941,6 +969,9 @@ async function submitPin() {
       currentPin = val;  // keep in memory for save()
       applySettings(JSON.parse(plain));
       slAll();
+      // Rebuild tag rows so their checkboxes/sliders reflect loaded state
+      buildTags('tagRows', false);
+      buildTags('liveTagRows', true);
       document.getElementById('pinScreen').classList.add('hide');
 
     } else if(pinMode === 'setup') {
@@ -1107,7 +1138,7 @@ function showErr(msg) {
   e.textContent='⚠ '+msg; e.style.display='block';
 }
 
-function go() {
+async function go() {
   try {
     const xaiKey = document.getElementById('xaiKey').value.trim();
     const elKey  = document.getElementById('elKey').value.trim();
@@ -1144,7 +1175,7 @@ function go() {
     });
     updatePill();
     slAll();
-    save();
+    await save();
 
     history = [];
     document.getElementById('setup').style.display = 'none';

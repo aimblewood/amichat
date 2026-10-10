@@ -255,7 +255,7 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     <span class="logo-hex">⬡</span>
     <div>
       <div class="logo-title">AMI VOICE</div>
-      <div class="logo-sub">Grok · xAI + ElevenLabs</div>
+      <div class="logo-sub">Grok · xAI + Fish Audio</div>
     </div>
   </div>
 
@@ -269,14 +269,14 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     <a class="hint" href="https://console.x.ai/" target="_blank">console.x.ai →</a>
   </div>
 
-  <!-- ElevenLabs key -->
+  <!-- Fish Audio key -->
   <div class="field">
-    <label class="lbl">ElevenLabs API Key</label>
+    <label class="lbl">Fish Audio API Key</label>
     <div class="wrap">
-      <input type="password" id="elKey" placeholder="sk_…">
+      <input type="password" id="elKey" placeholder="fish_…">
       <button class="eye" onclick="toggleEye('elKey',this)">👁</button>
     </div>
-    <a class="hint" href="https://elevenlabs.io/" target="_blank">elevenlabs.io →</a>
+    <a class="hint" href="https://fish.audio/app/api-keys/" target="_blank">fish.audio → API Keys →</a>
     <button class="load-btn" id="loadBtn" onclick="loadVoices()" disabled>Load My Voices</button>
     <div class="vstatus" id="vstat"></div>
   </div>
@@ -286,16 +286,13 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     <div class="field">
       <label class="lbl">Voice</label>
       <select id="voiceSel">
-        <optgroup label="Premade">
-          <option value="21m00Tcm4TlvDq8ikWAM">Rachel</option>
-          <option value="AZnzlk1XvdvUeBnXmlld">Domi</option>
-          <option value="EXAVITQu4vr4xnSDxMaL">Bella</option>
-          <option value="ErXwobaYiN019PkySvjV">Antoni</option>
-          <option value="TxGEqnHWrfWFTfGW9XjX">Josh</option>
-          <option value="pNInz6obpgDQGcFmaJgB">Adam</option>
+        <optgroup label="Popular">
+          <option value="d3efcea02d5c45fbaab45ef0a04b9a08">Valentina</option>
+          <option value="54a5170264694bfc8e411096c915ac42">EN Female — Casual</option>
+          <option value="0eb775bda50a4aea8af37ea9a4e52875">EN Male — Casual</option>
         </optgroup>
         <optgroup label="Custom">
-          <option value="__custom__">★ Paste Voice ID…</option>
+          <option value="__custom__">★ Paste Model ID…</option>
         </optgroup>
       </select>
     </div>
@@ -319,21 +316,19 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
 
   <!-- Custom voice ID -->
   <div class="inset" id="customBox" style="display:none">
-    <div class="inset-hint">ElevenLabs → Voices → click your voice → copy the Voice ID at the bottom.</div>
-    <input type="text" id="customId" placeholder="Voice ID…">
+    <div class="inset-hint">fish.audio → find a voice → copy the model ID from the URL: fish.audio/m/<b>MODEL_ID</b>/</div>
+    <input type="text" id="customId" placeholder="Model ID (32 hex chars)…">
     <input type="text" id="customName" placeholder="Nickname (e.g. Andreea)">
   </div>
 
-  <!-- ElevenLabs model -->
+  <!-- Fish Audio model -->
   <div class="field">
-    <label class="lbl">ElevenLabs Model</label>
+    <label class="lbl">Fish Audio Model</label>
     <select id="elModel">
-      <option value="eleven_v3">v3 — Most expressive, best audio tags ★</option>
-      <option value="eleven_multilingual_v2">Multilingual v2 — Best for cloned voices</option>
-      <option value="eleven_flash_v2_5">Flash v2.5 — Fastest</option>
-      <option value="eleven_turbo_v2_5">Turbo v2.5 — Fast &amp; expressive</option>
+      <option value="speech-1.6">speech-1.6 — Latest, best quality ★</option>
+      <option value="speech-1.5">speech-1.5 — Previous gen</option>
     </select>
-    <div style="font-size:10px;color:#a87cc4">v3 has the best audio tag support. If your cloned voice sounds odd, try Multilingual v2.</div>
+    <div style="font-size:10px;color:#a87cc4">speech-1.6 supports [emotion] tags like [happy] [sad] [whispering] [laughing] etc.</div>
   </div>
 
   <!-- Personality -->
@@ -405,8 +400,8 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
   <div class="field">
     <label class="lbl">TTS Prefix Tags</label>
     <div class="inset">
-      <div class="inset-hint">Prepended verbatim before every TTS call. Works best with v3.</div>
-      <input type="text" id="prefix" value="[romanian accent] [seductive] [very slow pace]">
+      <div class="inset-hint">Prepended verbatim before every TTS call. Fish Audio supports: [happy] [sad] [angry] [excited] [calm] [whispering] [seductive] [laughing] [sighing]</div>
+      <input type="text" id="prefix" value="[seductive] [calm]">
     </div>
   </div>
 
@@ -465,12 +460,10 @@ hr.div{border:none;border-top:1px solid #2a0d40;margin:0}
     </div>
     <hr class="div">
     <div class="field">
-      <label class="lbl">ElevenLabs Model</label>
+      <label class="lbl">Fish Model</label>
       <select id="liveElModel">
-        <option value="eleven_v3">v3 ★</option>
-        <option value="eleven_multilingual_v2">Multilingual v2</option>
-        <option value="eleven_flash_v2_5">Flash v2.5</option>
-        <option value="eleven_turbo_v2_5">Turbo v2.5</option>
+        <option value="speech-1.6">speech-1.6 ★</option>
+        <option value="speech-1.5">speech-1.5</option>
       </select>
     </div>
     <div class="field">
@@ -923,16 +916,14 @@ async function save() {
     const enc = await encrypt(JSON.stringify(settings), currentPin);
     const pinHash = await hashPin(currentPin);
     const payload = { id: SB_ROW, pin_hash: pinHash, enc_data: JSON.stringify(enc) };
-    // Proper upsert — insert or update on conflict
-    const res = await sbFetch('ami_settings', {
+    // Upsert
+    await sbFetch('ami_settings?id=eq.' + SB_ROW, {
+      method: 'DELETE'
+    });
+    await sbFetch('ami_settings', {
       method: 'POST',
-      headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify(payload)
     });
-    if(!res.ok) {
-      const txt = await res.text();
-      console.warn('save failed:', res.status, txt);
-    }
   } catch(e) { console.warn('save failed', e); }
 }
 
@@ -1011,8 +1002,6 @@ async function submitPin() {
         pinBusy=false; return;
       }
       currentPin = val;
-      document.getElementById('pinSub').textContent = 'Saving…';
-      await save();
       document.getElementById('pinScreen').classList.add('hide');
     }
   } catch(err) {
@@ -1115,28 +1104,34 @@ async function loadVoices() {
   const stat=document.getElementById('vstat');
   btn.disabled=true; btn.textContent='⟳ Loading…';
   try {
-    const res=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':key}});
+    // Fish Audio: list models owned by this user (their cloned/uploaded voices)
+    const res=await fetch('https://api.fish.audio/model?page_size=50&self=true',{
+      headers:{'Authorization':'Bearer '+key}
+    });
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
-    const voices=(data.voices||[]).sort((a,b)=>(a.category!=='premade'?0:1)-(b.category!=='premade'?0:1)||a.name.localeCompare(b.name));
+    const myVoices=(data.items||[]).sort((a,b)=>a.title.localeCompare(b.title));
     const sel=document.getElementById('voiceSel');
     sel.innerHTML='';
-    const custom=voices.filter(v=>v.category!=='premade');
-    const premade=voices.filter(v=>v.category==='premade');
-    if(custom.length) {
+    if(myVoices.length) {
       const g=document.createElement('optgroup'); g.label='★ My Voices';
-      custom.forEach(v=>{const o=document.createElement('option');o.value=v.voice_id;o.textContent=v.name;g.appendChild(o);});
+      myVoices.forEach(v=>{const o=document.createElement('option');o.value=v._id;o.textContent=v.title;g.appendChild(o);});
       sel.appendChild(g);
     }
-    const g2=document.createElement('optgroup'); g2.label=custom.length?'Premade':'All Voices';
-    premade.forEach(v=>{const o=document.createElement('option');o.value=v.voice_id;o.textContent=v.name;g2.appendChild(o);});
-    sel.appendChild(g2);
-    const g3=document.createElement('optgroup'); g3.label='Other';
-    const oc=document.createElement('option'); oc.value='__custom__'; oc.textContent='★ Paste Voice ID…';
-    g3.appendChild(oc); sel.appendChild(g3);
-    if(custom.length) sel.value=custom[0].voice_id;
+    // Always add a few popular public voices as fallback
+    const gPop=document.createElement('optgroup'); gPop.label='Popular';
+    [
+      {id:'d3efcea02d5c45fbaab45ef0a04b9a08',name:'Valentina'},
+      {id:'54a5170264694bfc8e411096c915ac42',name:'EN Female — Casual'},
+      {id:'0eb775bda50a4aea8af37ea9a4e52875',name:'EN Male — Casual'},
+    ].forEach(v=>{const o=document.createElement('option');o.value=v.id;o.textContent=v.name;gPop.appendChild(o);});
+    sel.appendChild(gPop);
+    const gOther=document.createElement('optgroup'); gOther.label='Other';
+    const oc=document.createElement('option'); oc.value='__custom__'; oc.textContent='★ Paste Model ID…';
+    gOther.appendChild(oc); sel.appendChild(gOther);
+    if(myVoices.length) sel.value=myVoices[0]._id;
     document.getElementById('customBox').style.display=sel.value==='__custom__'?'flex':'none';
-    stat.textContent=custom.length?`✓ ${custom.length} custom + ${premade.length} premade`:`✓ ${premade.length} voices`;
+    stat.textContent=myVoices.length?`✓ ${myVoices.length} my voices loaded`:'✓ No personal voices — using public voices';
     stat.className='vstatus ok';
     save();
   } catch(e) {
@@ -1171,7 +1166,7 @@ async function go() {
     const voiceVal = sel.value;
 
     if(!xaiKey) { showErr('Enter your xAI API key'); return; }
-    if(!elKey)  { showErr('Enter your ElevenLabs API key'); return; }
+    if(!elKey)  { showErr('Enter your Fish Audio API key'); return; }
 
     let voiceName;
     if(voiceVal === '__custom__') {
@@ -1318,15 +1313,19 @@ async function speak(rawText) {
 
   setStatus('Synthesising…');
   try {
-    const res=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
+    const body = {
+      text: processed,
+      reference_id: voiceId,
+      model: getElModel(),
+      format: 'mp3',
+      mp3_bitrate: 192,
+      // Fish Audio prosody: speed 1.0 = normal, range ~0.5–2.0
+      prosody: { speed }
+    };
+    const res=await fetch('https://api.fish.audio/v1/tts',{
       method:'POST',
-      headers:{'xi-api-key':elKey,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        text: processed,
-        model_id:getElModel(),
-        voice_settings:{stability:vs.stability,similarity_boost:vs.similarity_boost,style:vs.style,use_speaker_boost:true},
-        speed
-      })
+      headers:{'Authorization':'Bearer '+elKey,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
     });
     if(!res.ok) throw new Error(await res.text());
     const url=URL.createObjectURL(await res.blob());

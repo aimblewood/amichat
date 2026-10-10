@@ -1313,21 +1313,31 @@ async function speak(rawText) {
 
   setStatus('Synthesising…');
   try {
-    const body = {
-      text: processed,
-      reference_id: voiceId,
-      model: getElModel(),
-      format: 'mp3',
-      mp3_bitrate: 192,
-      // Fish Audio prosody: speed 1.0 = normal, range ~0.5–2.0
-      prosody: { speed }
-    };
-    const res=await fetch('https://api.fish.audio/v1/tts',{
+    // Route through our own Supabase Edge Function — no third parties touch the key
+    const EDGE_TTS = SB_URL + '/functions/v1/fish-tts';
+    const res=await fetch(EDGE_TTS,{
       method:'POST',
-      headers:{'Authorization':'Bearer '+elKey,'Content-Type':'application/json'},
-      body:JSON.stringify(body)
+      headers:{
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        fishKey:      elKey,
+        text:         processed,
+        reference_id: voiceId,
+        model:        getElModel(),
+        format:       'mp3',
+        mp3_bitrate:  128,
+        normalize:    true,
+        prosody:      { speed: Math.max(0.5, Math.min(2.0, speed)) }
+      })
     });
-    if(!res.ok) throw new Error(await res.text());
+    if(!res.ok) {
+      let errTxt = await res.text();
+      try { const j=JSON.parse(errTxt); errTxt=j.message||j.error||errTxt; } catch(e){}
+      throw new Error(errTxt);
+    }
     const url=URL.createObjectURL(await res.blob());
     stopAudio();
     audio=new Audio(url);
